@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Danny Boy</title>
+<meta name="description" content="Danny Boy, drawn by hand and sung by a voice written in code.">
+<meta name="theme-color" content="#1c1511">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4c8 0 12 6 12 12s-5 12-12 12S4 23 4 16 8 4 16 4z' fill='%23a3332a'/%3E%3Cpath d='M7 12c6-4 13-3 18 1M5 18c8-4 16-3 22 2M11 5c-3 8-2 16 3 22M20 5c4 7 4 14 0 22' fill='none' stroke='%23d8705f' stroke-width='1.6'/%3E%3C/svg%3E">
+<style>
+html,body{margin:0;height:100%;background:#1c1511;overflow:hidden;overscroll-behavior:none}
+#desk{position:fixed;inset:0;background:#1c1511;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#sheet{position:absolute;background:#e6d9c0}
+#film,#mark{position:absolute;inset:0;width:100%;height:100%;display:block}
+#mark{pointer-events:none}
+#ball{position:absolute;transform:translate(-50%,-50%);width:12.5%;aspect-ratio:1;min-width:64px;min-height:64px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent}
+#ball[hidden]{display:none}
+@media (forced-colors:active){#ball:focus-visible{outline:3px solid CanvasText;outline-offset:4px}}
+.quiet{cursor:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;margin:0}
+noscript{position:fixed;inset:0;display:grid;place-items:center;color:#e6d9c0;font:18px Georgia,serif}
+</style>
+</head>
+<body>
+<main id="desk">
+<div id="sheet">
+<canvas id="film" width="1920" height="1080" role="img" aria-label="A sheet of paper. Danny Boy, a hand-drawn film."></canvas>
+<canvas id="mark" aria-hidden="true"></canvas>
+<button id="ball" type="button" aria-label="Play Danny Boy" aria-describedby="keys"></button>
+</div>
+</main>
+<p id="keys" class="sr">Space pauses and plays. Left and right arrows move five seconds. R starts again, F fills the screen, M mutes.</p>
+<p id="live" class="sr" role="status" aria-live="polite"></p>
+<noscript>This drawing needs JavaScript.</noscript>
+<script type="text/plain" id="song"><!--SONG--></script>
+<!--FILM-->
+</body>
+</html>

@@ -1,0 +1,6 @@
+build/*
+!build/.gitkeep
+__pycache__/
+.DS_Store
+mix/report*.json
+band/events.json
