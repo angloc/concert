@@ -76,6 +76,15 @@ class Bumps:
             out.append(v)
         return out
 
+class _Clamp:
+    """legato 'fit': keep a consonant's gesture times inside [lo, hi] so neighbouring vowels keep an open stretch."""
+    def __init__(self, T, lo, hi): self.T = T; self.lo = lo; self.hi = hi
+    def __getitem__(self, k): return _ClampTrack(self.T[k], self.lo, self.hi)
+class _ClampTrack:
+    def __init__(self, tr, lo, hi): self.tr = tr; self.c = lambda x: min(hi, max(lo, x))
+    def to(self, ts, te, v, *a): self.tr.to(self.c(ts), self.c(te), v, *a)
+    def add(self, r0, r1, f0, f1, v): self.tr.add(self.c(r0), self.c(r1), self.c(f0), self.c(f1), v)
+
 def shape(name): return dict(SHAPES[name])
 def mix(a, b, u): return {k: a[k] + (b[k] - a[k]) * u for k in BODY}
 
@@ -124,6 +133,7 @@ class Score:
         for a, i in enumerate(nuc):
             g = S[i]; nx = S[i+1] if i + 1 < n else None
             v1, v2 = vowel_targets(g, nx, None)
+            if v2 is not None and LEGATO.get("tail") and a == len(nuc) - 1: v2 = mix(v1, v2, .5)
             j = i
             while j - 1 >= 0 and S[j-1]["role"] == "on" and S[j-1]["syl"] == g["syl"]: j -= 1
             c0 = S[j]["t0"]; hi = (j == i)          # vowel-initial syllable
@@ -136,7 +146,10 @@ class Score:
                 # do not steal more than 35% of the previous nucleus
                 if a > 0:
                     pg = S[nuc[a-1]]; ts = max(ts, pg["t0"] + (.15 if LEGATO.get("artic") else .45) * (pg["t1"] - pg["t0"]))
-                if LEGATO.get("artic"): T[k].to(ts, te, v1[k], 2.5)
+                if LEGATO.get("artic"):
+                    dv = 2.5
+                    if LEGATO.get("tail"): dv = 2.5 + 1.8 * min(1, max(0, (g["t1"] - g["t0"] - .15) / .25))
+                    T[k].to(ts, te, v1[k], dv)
                 else: T[k].to(ts, te, v1[k])
             if v2 is None:
                 # a held vowel is never parked: it has its own slow off-glide and leans toward the next vowel
@@ -163,6 +176,12 @@ class Score:
 
     def cons(self, i, g):
         S = self.segs; T = self.T; n = len(S); p = g["ph"]; t0, t1 = g["t0"], g["t1"]; d = t1 - t0
+        if LEGATO.get("fit"):
+            q = .30; pv = next((h for h in S[i-1::-1] if h["role"] == "nuc"), None) if i > 0 else None
+            nv = next((h for h in S[i+1:] if h["role"] == "nuc"), None)
+            lo = min(t0 - .015, pv["t1"] - q * (pv["t1"] - pv["t0"])) if pv else -1e9
+            hi = max(t1 + .015, nv["t0"] + q * (nv["t1"] - nv["t0"])) if nv else 1e9
+            T = _Clamp(T, lo, hi)
         prev = S[i-1] if i > 0 else None; nxt = S[i+1] if i + 1 < n else None
         on = g["role"] == "on"
         # neighbouring vowel shape, used to place dorsal closures
