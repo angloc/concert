@@ -1,0 +1,84 @@
+# Danny Boy lexicon: one word per line, phones in lexical-set notation (Wells) plus ARPAbet consonants.
+# (r) = an R that only rhotic accents pronounce. Song-specific forms (weak/strong choice, contractions) live here.
+oh       GOAT
+danny    D TRAP N happY
+boy      B CHOICE
+the      DH commA
+pipes    P PRICE P S
+are      START
+calling  K THOUGHT L KIT NG
+from     F R commA M
+glen     G L DRESS N
+to       T GOOSE
+and      TRAP N D
+down     D MOUTH N
+mountain M MOUTH N T KIT N
+side     S PRICE D
+summer's S STRUT M lettER Z
+gone     G CLOTH N
+all      THOUGHT L
+roses    R GOAT Z KIT Z
+falling  F THOUGHT L KIT NG
+it's     KIT T S
+you      Y GOOSE
+must     M STRUT S T
+go       G GOAT
+i        PRICE
+bide     B PRICE D
+but      B STRUT T
+come     K STRUT M
+ye       Y FLEECE
+back     B TRAP K
+when     W DRESS N
+in       KIT N
+meadow   M DRESS D GOAT
+or       NORTH
+valley's V TRAP L happY Z
+hushed   HH STRUT SH T
+white    W PRICE T
+with     W KIT DH
+snow     S N GOAT
+i'll     PRICE L
+be       B FLEECE
+here     HH NEAR
+sunshine S STRUT N SH PRICE N
+shadow   SH TRAP D GOAT
+love     L STRUT V
+so       S GOAT
+flow'rs  F L MOUTH (r)
+dying    D PRICE KIT NG
+if       KIT F
+am       TRAP M
+dead     D DRESS D
+as       TRAP Z
+well     W DRESS L
+may      M FACE
+ye'll    Y FLEECE L
+find     F PRICE N D
+place    P L FACE S
+where    W SQUARE
+lying    L PRICE KIT NG
+kneel    N FLEECE L
+say      S FACE
+an       TRAP N
+ave      PALM V FACE
+there    DH SQUARE
+for      F NORTH
+me       M FLEECE
+shall    SH TRAP L
+hear     HH NEAR
+though   DH GOAT
+soft     S CLOTH F T
+tread    T R DRESS D
+above    commA B STRUT V
+my       M PRICE
+grave    G R FACE V
+will     W KIT L
+warmer   W NORTH M lettER
+sweeter  S W FLEECE T lettER
+bend     B DRESS N D
+tell     T DRESS L
+that     DH TRAP T
+sleep    S L FLEECE P
+peace    P FLEECE S
+until    STRUT N T KIT L

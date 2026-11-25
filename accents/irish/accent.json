@@ -1,0 +1,111 @@
+{
+ "name": "irish",
+ "version": "0 (identity)",
+ "note": "Version 0 reproduces the phones hand-written in the original bide Danny Boy score exactly. Improving the accent is a later, deliberate change.",
+ "rhotic": true,
+ "vowels": {
+  "FLEECE": [
+   "IY"
+  ],
+  "happY": [
+   "IY"
+  ],
+  "KIT": [
+   "IH"
+  ],
+  "DRESS": [
+   "EH"
+  ],
+  "TRAP": [
+   "AE"
+  ],
+  "STRUT": [
+   "AH"
+  ],
+  "commA": [
+   "AH"
+  ],
+  "FOOT": [
+   "UH"
+  ],
+  "GOOSE": [
+   "UW"
+  ],
+  "LOT": [
+   "AA"
+  ],
+  "CLOTH": [
+   "AO"
+  ],
+  "THOUGHT": [
+   "AO"
+  ],
+  "PALM": [
+   "AA"
+  ],
+  "BATH": [
+   "AE"
+  ],
+  "FACE": [
+   "EY"
+  ],
+  "GOAT": [
+   "OW"
+  ],
+  "PRICE": [
+   "AY"
+  ],
+  "CHOICE": [
+   "OY"
+  ],
+  "MOUTH": [
+   "AW"
+  ],
+  "NURSE": [
+   "ER"
+  ],
+  "lettER": [
+   "ER"
+  ],
+  "START": [
+   "AA",
+   "R"
+  ],
+  "NORTH": [
+   "AO",
+   "R"
+  ],
+  "FORCE": [
+   "AO",
+   "R"
+  ],
+  "NEAR": [
+   "IH",
+   "R"
+  ],
+  "SQUARE": [
+   "EH",
+   "R"
+  ],
+  "CURE": [
+   "UH",
+   "R"
+  ]
+ },
+ "consonants": {},
+ "r_optional": "R",
+ "unconstrained": {
+  "sets": [
+   "LOT",
+   "BATH",
+   "FOOT",
+   "FORCE",
+   "CURE",
+   "NURSE"
+  ],
+  "why": "Danny Boy (the only reference so far) contains none of these, so v0 values are placeholders, not Irish judgements."
+ },
+ "observed_in": [
+  "danny-boy"
+ ]
+}
