@@ -72,10 +72,13 @@ def write(path, y, peak_db=-3.0):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--lines"); ap.add_argument("--all", action="store_true"); ap.add_argument("--out", required=True)
-    ap.add_argument("--cfg", default="{}"); ap.add_argument("--persona", action="store_true"); ap.add_argument("--xpose", type=float); ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--cfg", default="{}"); ap.add_argument("--persona", action="store_true"); ap.add_argument("--singer"); ap.add_argument("--xpose", type=float); ap.add_argument("--workers", type=int, default=2)
     a = ap.parse_args(); t = time.time()
     cfg = json.loads(a.cfg)
     if a.persona: cfg["persona"] = 1
+    if a.singer and not a.persona:
+        sys.path.insert(0, os.path.join(ROOT, "engine")); import singer as SG
+        cfg = dict(SG.load(a.singer), **cfg)
     if a.xpose is not None: cfg["xpose"] = a.xpose
     perf = load(a.persona)
     if a.all:

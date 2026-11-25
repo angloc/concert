@@ -13,7 +13,9 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 AGE_FROM, GHOST_FROM = 8, 12
 SHIFT = int(os.environ.get("BIDE_SHIFT", json.load(open(os.path.join(ROOT, "key.json")))["shift"]))   # semitones above the original key; the band reads the same file            # first line of the ageing section / of the posthumous section
 
-FEM = dict(K=.84, lev=.5, ftune=1.2, Kf=1.3, rd=.30, jit=.9, shim=1.2, jhi=.35, flut=9, nv=.80, xpose=SHIFT, mic=1)
+import sys; sys.path.insert(0, os.path.join(ROOT, "engine")); import singer as SG
+SINGER = "female"
+FEM = dict(SG.load(SINGER), xpose=SHIFT)                 # the singer profile, raised to the song's key
 
 def phase(li):
     f = os.environ.get("BIDE_PHASE")                      # test hook: force one phase for every line
