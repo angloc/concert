@@ -5,7 +5,7 @@ set -e
 cd "$(dirname "$0")"
 python3 music/perform.py
 python3 tools/mktimeline.py
-python3 voice/sing.py --all --out build/voice.wav
+python3 voice/sing.py --all --persona --out build/voice.wav
 python3 band/render.py
 python3 mix/mix.py build/voice.wav -o build/mix.wav
 python3 mix/flac.py build/mix.wav build/song.flac --requant --max-bytes 9000000
