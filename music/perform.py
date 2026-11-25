@@ -6,6 +6,7 @@ import copy, json, math, os, random
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 import sys; sys.path.insert(0, HERE)
 import score as SC
+sys.path.insert(0, os.path.join(ROOT, "engine")); from opts import LEGATO
 CR = 200
 VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OY","UH","UW"}
 ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
@@ -51,6 +52,9 @@ def segments(sc):
             info.append((ph[:vi],ph[vi],ph[vi+1:]))
         n=len(syl)
         onset_d=[[ON[p]*rnd.uniform(.94,1.08) for p in info[i][0]] for i in range(n)]
+        if LEGATO.get("cons"):
+            cf=[max(.6,min(1.0,syl[i]["d"]/.35)) for i in range(n)]
+            onset_d=[[d*cf[i] for d in onset_d[i]] for i in range(n)]
         for i in range(n):                       # clusters are shorter than the sum of parts
             k=len(onset_d[i]); f={0:1,1:1,2:.80,3:.70}[min(3,k)]
             onset_d[i]=[d*f for d in onset_d[i]]
@@ -59,6 +63,7 @@ def segments(sc):
             end=s["t"]+s["d"] if i==n-1 else syl[i+1]["t"]-sum(onset_d[i+1])
             end-=CUT.get(key(L,i),0.0)
             offd=[OFF[p]*rnd.uniform(.94,1.08) for p in off]
+            if LEGATO.get("cons"): offd=[d*max(.6,min(1.0,s["d"]/.35)) for d in offd]
             if i==n-1: offd=[d*1.25 for d in offd]
             k=len(offd); f={0:1,1:1,2:.78,3:.66}[min(3,k)]; offd=[d*f for d in offd]
             avail=end-t; vmin=max(.10,.42*avail)
@@ -114,11 +119,19 @@ def tracks(sc,segs):
                 iv=abs(bn["m"]-a); w=min(.16,.080+.011*iv); 
                 if bn["mel"]: w*=1.15
                 return a+(bn["m"]-a)*sstep((t-(bn["t"]-.62*w))/w)
+            if LEGATO.get("pitch"):
+                def glide(a,bn,_k=k):
+                    iv=abs(bn["m"]-a); w=min(.16,.080+.011*iv)
+                    if bn["mel"]: w*=1.15
+                    pd=notes[_k-1]["dur"] if _k>0 else bn["dur"]
+                    w=max(w,min(.25,.45*min(pd,bn["dur"])))       # glide grows with the notes, centred on the change
+                    return a+(bn["m"]-a)*sstep((t-(bn["t"]-.5*w))/w)
             if k>0: m=glide(notes[k-1]["m"],nt)
             else:   m=nt["m"]-ARC[L["i"]][4]*(1-sstep((t-(nt["t"]-.10))/.22))     # scoop into the phrase
             iv=nt["m"]-(notes[k-1]["m"] if k>0 else nt["m"])
-            if iv>=3: m+=.26*math.exp(-((t-nt["t"]-.085)/.045)**2)
-            if iv<=-3: m-=.16*math.exp(-((t-nt["t"]-.085)/.05)**2)
+            kick=not (LEGATO.get("pitch") and nt["dur"]<.4)
+            if kick and iv>=3: m+=.26*math.exp(-((t-nt["t"]-.085)/.045)**2)
+            if kick and iv<=-3: m-=.16*math.exp(-((t-nt["t"]-.085)/.05)**2)
             if nt["ext"]>0:
                 x=t-nt["t"]; tail=.15 if nt["spec"] and nt["ext"]>.4 else .30
                 e=nt["ext"]*sstep((x-nt["von"])/.50)*(1-.75*sstep((x-nt["dur"]+tail)/(tail-.02)))
@@ -146,6 +159,12 @@ def tracks(sc,segs):
             db[i]=lev
             q=(dy-.45)*.55
             ten[i]=max(.05,min(.95,ten0+q*.6+amwob[i]*.02)); bre[i]=max(.03,min(.95,bre0-q*.5+.25*sstep((t-(te-.35))/.35)))
+    if LEGATO.get("level"):
+        h=6
+        for L in sc["lines"]:
+            ls=[g for g in segs if g["line"]==L["i"]]; a=int((ls[0]["t0"]+.12)*CR); b=int((ls[-1]["t1"]-.25)*CR)
+            src=db[a-h:b+h+1]
+            for i in range(a,b+1): db[i]=sum(src[i-a:i-a+2*h+1])/(2*h+1)
     for g in segs:                               # consonant microprosody
         if g["ph"] in VOICED_OBS:
             c=(g["t0"]+g["t1"])/2; w=(g["t1"]-g["t0"])*.6+.02

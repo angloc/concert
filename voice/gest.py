@@ -1,6 +1,7 @@
 """gest.py - phoneme segments -> articulator trajectories (gestural score with per-articulator timing)."""
 import json, math, os, random
 HERE = os.path.dirname(os.path.abspath(__file__))
+import sys; sys.path.insert(0, os.path.join(os.path.dirname(HERE), "engine")); from opts import LEGATO
 BODY = ["J", "X", "Y", "TR", "TT", "BP", "LA", "LP", "LH", "EP"]
 _SJ = json.load(open(os.path.join(HERE, "shapes.json")))
 SHAPES = {k: v["art"] for k, v in _SJ.items()}
@@ -29,13 +30,13 @@ OFFG = {"AE": ("AX", .22), "EH": ("AX", .22), "IH": ("AX", .18), "AH": ("AX", .1
 class Track:
     __slots__ = ("v0", "tr")
     def __init__(self, v0): self.v0 = v0; self.tr = []
-    def to(self, ts, te, v):
+    def to(self, ts, te, v, div=4.3):
         if te < ts + .004: te = ts + .004
-        self.tr.append((ts, te, v))
+        self.tr.append((ts, te, v, div))
     def sample(self, times):
         """critically damped approach to each target (task dynamics); overlapping moves blend."""
         ex = math.exp
-        tr = sorted((ts, te, v, (te - ts) / 4.3) for ts, te, v in self.tr); n = len(tr); i = 0; base = self.v0; act = []; out = []
+        tr = sorted((ts, te, v, (te - ts) / dv) for ts, te, v, dv in self.tr); n = len(tr); i = 0; base = self.v0; act = []; out = []
         for t in times:
             while i < n and tr[i][0] <= t: act.append(tr[i]); i += 1
             while act and t - act[0][0] > 11 * act[0][3]: base = act.pop(0)[2]
@@ -134,8 +135,9 @@ class Score:
                     if q >= 0: ts = max(ts, self.claim.get((q, k), -1))
                 # do not steal more than 35% of the previous nucleus
                 if a > 0:
-                    pg = S[nuc[a-1]]; ts = max(ts, pg["t0"] + .45 * (pg["t1"] - pg["t0"]))
-                T[k].to(ts, te, v1[k])
+                    pg = S[nuc[a-1]]; ts = max(ts, pg["t0"] + (.15 if LEGATO.get("artic") else .45) * (pg["t1"] - pg["t0"]))
+                if LEGATO.get("artic"): T[k].to(ts, te, v1[k], 2.5)
+                else: T[k].to(ts, te, v1[k])
             if v2 is None:
                 # a held vowel is never parked: it has its own slow off-glide and leans toward the next vowel
                 d = g["t1"] - g["t0"]; nv = None
@@ -155,7 +157,7 @@ class Score:
         # legato vowel-vowel joins at word boundaries: tiny glottal dip so words stay separate
         for a in range(1, len(nuc)):
             i = nuc[a]
-            if S[i-1]["role"] == "nuc":
+            if S[i-1]["role"] == "nuc" and not LEGATO.get("cons"):
                 t = S[i]["t0"]
                 T["AV"].add(t - .075, t - .015, t - .012, t + .06, .62)
 
