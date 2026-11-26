@@ -12,6 +12,8 @@
           stops a relaxing F/V lip gesture inheriting a T/D release (the "soft you" click)
   burst: (bug fix) release-burst strength follows oral pressure^1.5, as frication does, not its square root;
           voiced stops (lower pressure) burst ~8 dB weaker than before (the "oh Danny" click)
-  burstgain: (calibration) multiplier on the release transient, every place of articulation; default 1.0"""
+  burstgain: (calibration) multiplier on the release transient, every place of articulation; default 1.0
+  comma: phrase-final lengthening (x1.25) of the coda before punctuation inside a line, as at the line end
+  codaasp: a coda P/T/K before a voiced sound is unaspirated: the glottis closes at the release, not ~25 ms into the next sound"""
 import json, os
 LEGATO = json.loads(os.environ.get("BIDE_LEGATO", "{}") or "{}")

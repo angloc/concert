@@ -235,6 +235,7 @@ class Score:
             pk = (.10 if (prev is not None and prev["ph"] == "S" and prev["role"] == "on") else .20) if on else .12
             f1 = t1 + (.036 if on else .022) if not nuv else t1 + .06
             f0 = (max(t0 + cl, t1 - .024) if on else max(t0 + cl, t1 - .045)) if not nuv else t1
+            if LEGATO.get("codaasp") and not on and not nuv: f0 = t0 + cl - .01; f1 = t0 + cl + .012   # coda stop: glottis closes at the release
             T["GA"].add(t0 - .012, t0 + max(.03, cl * .9), f0, f1, pk)
         if p in ("B", "D", "G"):
             T["VST"].add(t0 - .02, t0 + .01, t0 + cl, t0 + cl + .02, 1.0)

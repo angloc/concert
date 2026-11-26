@@ -57,6 +57,7 @@ def segments(sc):
     segs=[]; rnd=random.Random(11)
     for L in sc["lines"]:
         syl=L["syl"]; info=[]; RS=reduce_line(L) if LEGATO.get("reduce") else None
+        BRK=[x["brk"] for x in CS.from_score(syl, None, None, L.get("text"))] if LEGATO.get("comma") else None
         for s in syl:
             ph=s["ph"]; vi=[i for i,p in enumerate(ph) if p in VOW][0]
             info.append((ph[:vi],ph[vi],ph[vi+1:]))
@@ -78,6 +79,7 @@ def segments(sc):
             if LEGATO.get("cons"): offd=[d*max(.6,min(1.0,s["d"]/.35)) for d in offd]
             if RS: offd=[d*m for d,m in zip(offd,RS[i]["off_mult"])]
             if i==n-1: offd=[d*1.25 for d in offd]
+            elif LEGATO.get("comma") and BRK[i]: offd=[d*1.25 for d in offd]   # phrase-final lengthening at punctuation
             k=len(offd); f={0:1,1:1,2:.78,3:.66}[min(3,k)]; offd=[d*f for d in offd]
             avail=end-t; vmin=max(.10,.42*avail)
             if avail-sum(offd)<vmin and offd:
