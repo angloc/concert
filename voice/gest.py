@@ -16,7 +16,7 @@ def opened(name, f0):
             b = SHAPES[OPENTO[name]]; u = min(.75, need / max(60.0, F1OF[OPENTO[name]] - F1OF[name]))
             s = {k: s[k] + (b[k] - s[k]) * u for k in BODY}
     return s
-VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OY","UH","UW"}
+VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OH","OY","UH","UW"}
 # per-articulator lead (s before the syllable's first consonant) and settle (s after vowel onset)
 LEAD = dict(J=.050, X=.055, Y=.055, TR=.050, TT=.045, BP=.04, LA=.060, LP=.110, LH=.06, EP=.06)
 SETT = dict(J=.11, X=.130, Y=.130, TR=.130, TT=.09, BP=.08, LA=.09, LP=.09, LH=.15, EP=.14)
@@ -94,6 +94,7 @@ def vowel_targets(g, nxt, line):
     if p in DIPH:
         a, b, u = DIPH[p]; A = opened(a, fz); return A, mix(A, opened(b, fz), u)
     if p == "AH": s = opened("AX" if g.get("weak") else "AH", fz)
+    elif p == "OH": s = opened("O", fz)                      # pure [o:] (Irish GOAT)
     elif p == "AO" and nxt and nxt["ph"] == "R": s = opened("OR", fz)
     elif p in SHAPES: s = opened(p, fz)
     else: s = opened("AX", fz)

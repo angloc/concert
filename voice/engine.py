@@ -370,7 +370,7 @@ def render_line(perf, li, cfg=None, debug=None):
     if cfg["lev"] > 0: y = effort(y, n0, nucs, times, db, arc, cfg["lev"], cfg.get("effhp", 260.0), cfg.get("lref", LREF))
     return n0, y
 
-OPENV = dict(AA=1.2, AE=1.0, AO=.8, AW=1.2, AY=1.2, OY=.6, EH=.6, AH=.6, OW=.2, ER=-.3, EY=0, IH=-.8, UH=-.8, IY=-1.6, UW=-1.6)
+OPENV = dict(AA=1.2, AE=1.0, AO=.8, AW=1.2, AY=1.2, OY=.6, EH=.6, AH=.6, OW=.2, OH=.2, ER=-.3, EY=0, IH=-.8, UH=-.8, IY=-1.6, UW=-1.6)
 LREF = 106.0
 def effort(y, n0, nucs, times, db, arc, amount, hp=260.0, lref=LREF):
     """a singer aims at loudness, not at glottal amplitude: correct the vowel-to-vowel level the tract produces (linear, slow)."""

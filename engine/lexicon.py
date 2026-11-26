@@ -7,7 +7,7 @@ each vowel takes as many preceding consonants as form a legal English onset, the
 Standard library only."""
 import json, os
 
-VOWEL_PHONES = {"AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY", "IH", "IY", "OW", "OY", "UH", "UW"}
+VOWEL_PHONES = {"AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY", "IH", "IY", "OW", "OH", "OY", "UH", "UW"}
 
 # legal English onsets (ARPAbet). Single consonants are legal except NG.
 ONSETS = {tuple(o.split()) for o in """

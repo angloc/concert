@@ -11,7 +11,7 @@ import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 import tract as TR
 
-MAP = {"AY": "A", "OW": "O", "OY": "AO", "AW": "A", "AA": "AA", "AE": "AE", "AH": "AH", "AO": "AO", "EH": "EH", "EY": "EY",
+MAP = {"AY": "A", "OW": "O", "OH": "O", "OY": "AO", "AW": "A", "AA": "AA", "AE": "AE", "AH": "AH", "AO": "AO", "EH": "EH", "EY": "EY",
        "IH": "IH", "IY": "IY", "UW": "UW", "UH": "UH", "ER": "ER"}
 MAXJ = .50
 _T = None

@@ -8,7 +8,7 @@ import sys; sys.path.insert(0, HERE)
 import score as SC
 sys.path.insert(0, os.path.join(ROOT, "engine")); from opts import LEGATO
 CR = 200
-VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OY","UH","UW"}
+VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OH","OY","UH","UW"}
 ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
 OFF= dict(P=.085,B=.07,T=.075,D=.065,K=.085,G=.07,S=.115,Z=.095,SH=.12,F=.095,V=.080,TH=.09,DH=.07,HH=.06,M=.100,N=.095,NG=.150,L=.105,R=.110,W=.07,Y=.07)
 VOICED_OBS = {"B","D","G","V","Z","DH"}
@@ -49,7 +49,7 @@ def segments(sc):
         syl=L["syl"]; info=[]
         for s in syl:
             ph=s["ph"]; vi=[i for i,p in enumerate(ph) if p in VOW][0]
-            info.append((ph[:vi],ph[vi],ph[vi+1:]))
+            info.append((ph[:vi],"OH" if (LEGATO.get("goat") and ph[vi]=="OW") else ph[vi],ph[vi+1:]))
         n=len(syl)
         onset_d=[[ON[p]*rnd.uniform(.94,1.08) for p in info[i][0]] for i in range(n)]
         if LEGATO.get("cons"):
@@ -72,7 +72,11 @@ def segments(sc):
             x=t-sum(onset_d[i])
             for p,d in zip(on,onset_d[i]): segs.append(dict(ph=p,t0=x,t1=x+d,line=L["i"],syl=i,role="on")); x+=d
             vend=end-sum(offd)
-            segs.append(dict(ph=nuc,t0=t,t1=vend,line=L["i"],syl=i,role="nuc",d=s["d"],weak=s["word"].strip("-").lower() in WEAK,last=i==n-1))
+            # elide: a reduced vowel between a homorganic stop and N/L drops out and the sonorant carries the note (moun-t'n)
+            el=(LEGATO.get("elide") and i>0 and syl[i-1]["word"].endswith("-") and nuc in ("IH","AH") and on and on[-1] in ("T","D")
+                and off and off[0] in ("N","L") and s["d"]<.35)
+            if el: offd=[offd[0]+vend-(t+.02)]+offd[1:]; vend=t+.02
+            segs.append(dict(ph=nuc,t0=t,t1=vend,line=L["i"],syl=i,role="nuc",d=s["d"],weak=bool(el) or s["word"].strip("-").lower() in WEAK,last=i==n-1))
             x=vend
             for p,d in zip(off,offd): segs.append(dict(ph=p,t0=x,t1=x+d,line=L["i"],syl=i,role="off")); x+=d
     segs.sort(key=lambda g:g["t0"])
@@ -197,8 +201,8 @@ def timeline(sc,segs,tr):
             else: cur["w"]+=w.rstrip("-"); cur["t1"]=g[-1]["t1"]
             if not cont: words.append(cur); cur=None
     fps=24; n=int(sc["total"]*fps)+1
-    OPEN=dict(AA=.95,AE=.9,AH=.6,AO=.75,AW=.85,AY=.9,EH=.65,ER=.4,EY=.55,IH=.35,IY=.25,OW=.6,OY=.65,UH=.35,UW=.22)
-    RND=dict(AO=.6,OW=.8,OY=.5,UW=1,UH=.7,W=1,R=.4,SH=.6,AW=.4)
+    OPEN=dict(AA=.95,AE=.9,AH=.6,AO=.75,AW=.85,AY=.9,EH=.65,ER=.4,EY=.55,IH=.35,IY=.25,OW=.6,OH=.6,OY=.65,UH=.35,UW=.22)
+    RND=dict(AO=.6,OW=.8,OH=.8,OY=.5,UW=1,UH=.7,W=1,R=.4,SH=.6,AW=.4)
     mo=[0.0]*n; mr=[0.0]*n
     for g in segs:
         o=OPEN.get(g["ph"],{"M":0,"B":0,"P":0,"F":.08,"V":.08}.get(g["ph"],.18)); r=RND.get(g["ph"],0)
