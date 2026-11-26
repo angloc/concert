@@ -9,9 +9,9 @@ import score as SC
 sys.path.insert(0, os.path.join(ROOT, "engine")); from opts import LEGATO
 CR = 200
 VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OH","OY","UH","UW"}
-ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
-OFF= dict(P=.085,B=.07,T=.075,D=.065,K=.085,G=.07,S=.115,Z=.095,SH=.12,F=.095,V=.080,TH=.09,DH=.07,HH=.06,M=.100,N=.095,NG=.150,L=.105,R=.110,W=.07,Y=.07)
-VOICED_OBS = {"B","D","G","V","Z","DH"}
+ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,ZH=.095,CH=.130,JH=.100,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
+OFF= dict(P=.085,B=.07,T=.075,D=.065,K=.085,G=.07,S=.115,Z=.095,SH=.12,ZH=.100,CH=.120,JH=.095,F=.095,V=.080,TH=.09,DH=.07,HH=.06,M=.100,N=.095,NG=.150,L=.105,R=.110,W=.07,Y=.07)
+VOICED_OBS = {"B","D","G","V","Z","DH","ZH","JH"}
 VOICED = {"B","D","G","V","DH","Z","ZH","JH","M","N","NG","L","R","W","Y"}
 WEAK = {"the","and","are","in","or","as","to","am","a-","an","at","for","that","it's","with"}
 COL = dict(warm=(.45,.30),open=(.50,.24),soft=(.36,.42),plain=(.42,.32),bright=(.56,.20),hushed=(.16,.80),full=(.72,.12),
@@ -207,7 +207,7 @@ def timeline(sc,segs,tr):
             if not cont: words.append(cur); cur=None
     fps=24; n=int(sc["total"]*fps)+1
     OPEN=dict(AA=.95,AE=.9,AH=.6,AO=.75,AW=.85,AY=.9,EH=.65,ER=.4,EY=.55,IH=.35,IY=.25,OW=.6,OH=.6,OY=.65,UH=.35,UW=.22)
-    RND=dict(AO=.6,OW=.8,OH=.8,OY=.5,UW=1,UH=.7,W=1,R=.4,SH=.6,AW=.4)
+    RND=dict(AO=.6,OW=.8,OH=.8,OY=.5,UW=1,UH=.7,W=1,R=.4,SH=.6,ZH=.6,CH=.6,JH=.6,AW=.4)
     mo=[0.0]*n; mr=[0.0]*n
     for g in segs:
         o=OPEN.get(g["ph"],{"M":0,"B":0,"P":0,"F":.08,"V":.08}.get(g["ph"],.18)); r=RND.get(g["ph"],0)

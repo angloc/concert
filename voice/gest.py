@@ -198,7 +198,7 @@ class Score:
             for k in (keys or tgt):
                 T[k].to(t0 - lead, t0 + at * d, tgt[k]); self.claim[(i, k)] = t0 + min(.8, at + .22) * d
         rel = t1; cl = d
-        uv = ("P", "T", "K", "S", "SH", "F", "HH", "TH")
+        uv = ("P", "T", "K", "S", "SH", "CH", "F", "HH", "TH")
         nuv = nxt is not None and nxt["ph"] in uv; puv = prev is not None and prev["ph"] in uv
         def AV(v, l=.04, e=.03): T["AV"].add(t0 - l, t0 + .02, t1 - .02, t1 + e, v)
         if p in ("P", "B", "M"):
@@ -246,6 +246,23 @@ class Score:
             body({"J": .10, "LA": min(1.35, max(.95, vsh["LA"])), "X": max(vsh["X"], .35) if vsh["X"] > 0 else vsh["X"] * .5 + .15}, lead=.06, at=.3)
             if p == "S": T["GA"].add(t0 - .035, t0 + .35 * d, t1 - (.055 if not nuv else 0), t1 + (.018 if not nuv else .05), .24)
             else: T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .04, t1 + .02, .055)
+        if p in ("CH", "JH"):
+            # affricate: postalveolar closure released into an SH-like channel for the rest of the segment
+            cl = d * (.55 if p == "CH" else .60)
+            T["sTT"].to(t0 - .12, t0 - .04, 13.6); T["hTT"].to(t0 - .12, t0 - .04, .48)
+            T["cTT"].add(t0 - .080, t0 + .012, t0 + cl - .003, t0 + cl + .012, -.18)
+            T["cTT"].add(t0 + cl - .010, t0 + cl, t1 - .012, t1 + .110, .40 if p == "CH" else .43)
+            body({"J": .12, "LA": .95, "LP": .40, "X": .45, "Y": .10}, lead=.07, at=.35)
+            if p == "CH": T["GA"].add(t0 - .012, t0 + max(.03, cl * .9), t1 - .055, t1 + .018, .24)
+            else:
+                T["VST"].add(t0 - .02, t0 + .01, t0 + cl, t0 + cl + .02, 1.0)
+                T["AV"].add(t0 - .01, t0 + .03, t0 + cl - .006, t0 + cl + .016, .55)
+                T["GA"].add(t0 + cl - .01, t0 + cl + .02, t1 - .04, t1 + .02, .055)
+        if p == "ZH":
+            T["sTT"].to(t0 - .12, t0 - .03, 13.5); T["hTT"].to(t0 - .12, t0 - .03, .5)
+            T["cTT"].add(t0 - .085, t0 + .022, t1 - .012, t1 + .120, .43)
+            body({"J": .12, "LA": .95, "LP": .40, "X": .45, "Y": .10}, lead=.07, at=.35)
+            T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .04, t1 + .02, .055); AV(.85)
         if p == "SH":
             T["sTT"].to(t0 - .12, t0 - .03, 13.5); T["hTT"].to(t0 - .12, t0 - .03, .5)
             T["cTT"].add(t0 - .085, t0 + .022, t1 - .012, t1 + .120, .40)
