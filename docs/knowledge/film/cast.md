@@ -133,4 +133,4 @@ Small print
 
 ## 6. Test sheets
 `castSheet` k 0–4 one character each, 5 line-up, 6 far figures · `castFaces` k 0–15 · `castHands` k 0–1 · `castWalk` k 0–5 · `castActing` k 0–1 · `castPairs` k 0–6 · `castMotion` k 0–6 (consecutive drawings) · `castBig` k 0–10
-`node tools/shot.mjs --fn castPairs --k 0,1,2 --cols 3 --w 640 --out build/x.jpg`
+`uv run concert-shot --fn castPairs --k 0,1,2 --cols 3 --w 640 --out build/x.jpg`

@@ -18,6 +18,8 @@ concert-mix = "concert.mix.mix:main"
 concert-page = "concert.page.build:main"
 concert-perform = "concert.performance.perform:main"
 concert-preflight = "concert.review.preflight:main"
+concert-record = "concert.capture.record:main"
+concert-shot = "concert.capture.shot:main"
 concert-sing = "concert.voice.sing:main"
 concert-timeline = "concert.page.timeline:main"
 doccheck = "repochecks.doccheck:main"
@@ -26,8 +28,10 @@ tagcheck = "repochecks.tagcheck:main"
 [dependency-groups]
 dev = [
     "coverage==7.17.5",
+    "imageio-ffmpeg==0.6.0",
     "numpy==2.5.5",
     "pip-audit==2.10.1",
+    "playwright==1.63.0",
     "pytest==9.2.0",
     "pytest-timeout==2.4.0",
     "ruff==0.17.6",
@@ -52,8 +56,10 @@ addopts = "--import-mode=importlib"
 timeout = 60
 
 [tool.coverage.run]
-# Measures src/ only: existing code is exempt from the floor until increment I4 (decision 0015).
-source = ["src"]
+# Existing code under src/concert is exempt from the floor until increment I4 (decision 0015).
+source = ["src/repochecks", "src/concert/capture"]
+# Playwright's synchronous API runs the page in greenlets.
+concurrency = ["thread", "greenlet"]
 branch = false
 parallel = true
 patch = ["subprocess"]

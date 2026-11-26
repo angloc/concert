@@ -10,7 +10,7 @@ UV          := uv run --locked
 SHELL := bash
 .SHELLFLAGS := -euo pipefail -c
 .DEFAULT_GOAL := verify
-.PHONY: install verify package test fmt docs-check
+.PHONY: install verify package test fmt docs-check export
 
 # install sets up the programs that the other targets call. It changes the
 # machine, so it refuses to run outside a CI runner, a container or a
@@ -22,6 +22,7 @@ install:
 	fi
 	python3 -m pip install --disable-pip-version-check --quiet "uv==$(UV_VERSION)"
 	uv sync --locked --no-install-project
+	uv run --locked --no-install-project playwright install --with-deps chromium
 
 # verify is the check to run before finishing any change. It never rewrites
 # tracked files. The coverage floor is fail_under in pyproject.toml.
@@ -54,6 +55,11 @@ package:
 test: package
 	rm -f .coverage .coverage.*
 	$(UV) coverage run -m pytest -p no:cacheprovider
+
+# export draws the whole film in headless Chromium and encodes it with the
+# song as an MP4 in build/. It is slow without a GPU.
+export: package
+	$(UV) concert-record $(BUILD)/bide.mp4 $(BUILD)/song.flac
 
 fmt:
 	$(UV) ruff format

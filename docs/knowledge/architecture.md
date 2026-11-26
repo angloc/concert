@@ -113,10 +113,9 @@ Hides how the film and song become one self-contained page with nothing fetched.
 ### Review and capture tools
 
 - `concert-preflight <build dir>` ([src/concert/review/](../../src/concert/review/)): a read-only review of a render against the voice's physical limits (pitch against F1, harmonic spacing, presence, level over the band, consonant energy) per vowel nucleus. Writes no audio; writes its rows to `preflight_rows.json` in the build directory. The plan-check half of preflight is not yet built ([performance feasibility](performance/feasibility.md)).
-- `tools/shot.mjs`: captures stills of test sheets and scenes in headless Chrome.
-- `tools/record.mjs` with `tools/enc.swift`: draws every sheet in headless Chrome and encodes an MP4 through macOS AVFoundation. To be replaced by ffmpeg ([decision 0011](../decisions/0011-ffmpeg-video-export.md)).
-
-Code: [tools/](../../tools/).
+- Capture ([src/concert/capture/](../../src/concert/capture/)) hides how the film is drawn in a headless browser: `film/dev.html` open in Chromium through Playwright at 1920×1080, with SwiftShader where there is no GPU.
+  - `concert-shot` draws chosen times (`--at`, `--strip`) or test sheets (`--fn`, `--k`) as one captioned contact sheet, JPEG or PNG.
+  - `concert-record out.mp4 song.flac [--from s] [--to s]` draws every drawing in order and streams it as JPEG to ffmpeg, which writes 1920×1080 H.264 at 24 fps (each drawing held for two frames) with the song as AAC ([decision 0011](../decisions/0011-ffmpeg-video-export.md)). `make export` runs it over the whole film into `build/bide.mp4`.
 
 ### Repository checks
 

@@ -49,6 +49,7 @@ Work in the devcontainer (`.devcontainer/`), or in a dedicated virtual machine w
 | `make verify` | the check to run before finishing any change: formatting, lint, vulnerability audit, tests, coverage and the documentation check |
 | `make package` | builds the page from nothing into `dist/bide_<version>.html` with `SHA256SUMS`; takes a few minutes |
 | `make test` | packages, then runs the tests |
+| `make export` | packages, then draws the whole film in headless Chromium and writes it with the song to `build/bide.mp4` (1920×1080, 24 fps); takes hours without a GPU |
 | `make fmt` | formats the Python code |
 | `make docs-check` | checks the knowledge base, decision records, plan and links |
 

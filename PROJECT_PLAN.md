@@ -1,21 +1,5 @@
 # Project plan
 
-## I1: Video export with ffmpeg
-Benefit: the film can be exported as an MP4 on any Linux machine and in CI, not only on a Mac.
-Deliver:
-- `tools/record.mjs` streams frames to ffmpeg, which encodes 1920×1080 H.264 at 24 fps and muxes the build's FLAC song as AAC.
-- A Make target for the export.
-- `tools/enc.swift` removed.
-- `tools/shot.mjs` and `tools/record.mjs` brought under the JavaScript profile, and their exemption removed from decision 0015.
-Docs: change README.md
-Publishes: none
-Acceptance:
-- The export target writes an MP4 of the whole film with the song, on Linux, in a dedicated environment.
-- No Swift remains in the repository.
-- `tools/*.mjs` pass the JavaScript profile's checks, coverage included.
-- `make verify` passes.
-Read first: [architecture](docs/knowledge/architecture.md), [decision 0011](docs/decisions/0011-ffmpeg-video-export.md), [open questions](docs/knowledge/open-questions.md)
-
 ## I2: Version on the page and browser tests
 Benefit: a viewer can see which release they are watching, and every release is proven to play in Chromium, Firefox and WebKit.
 Deliver:
