@@ -10,7 +10,7 @@ PI4 = math.pi * .25
 CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45, K=1.0, jhi=1.3)
 
 import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), "engine")); from opts import LEGATO
-LIPCON = bool(LEGATO.get("lipcon"))
+LIPCON = bool(LEGATO.get("lipcon")); BURST = bool(LEGATO.get("burst"))
 REL = bool(LEGATO.get("release"))
 
 def smooth_noise(n, dt, fc, rnd, amp):
@@ -181,7 +181,7 @@ def render_line(perf, li, cfg=None, debug=None):
         if vst > 0 and Act < .02: tau = max(tau, .030 * vst)
         Pio += (Pq - Pio) * (1 - math.exp(-dtf / tau))
         # transient at release
-        if prevAc < .006 and Act >= .006 and Pio > 600: tr_env = math.sqrt(Pio / 8000.0)
+        if prevAc < .006 and Act >= .006 and Pio > 600: tr_env = (Pio / 8000.0) ** 1.5 if BURST else math.sqrt(Pio / 8000.0)   # burst: same pressure law as frication
         prevAc = Act
         tr_env *= math.exp(-dtf / .0030)
         gains = [0.0] * len(sites)
