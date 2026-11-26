@@ -11,6 +11,7 @@
   lipcon: (bug fix) the lip constriction counts only where the lips, not the tongue tip, narrow the tube;
           stops a relaxing F/V lip gesture inheriting a T/D release (the "soft you" click)
   burst: (bug fix) release-burst strength follows oral pressure^1.5, as frication does, not its square root;
-          voiced stops (lower pressure) burst ~8 dB weaker than before (the "oh Danny" click)"""
+          voiced stops (lower pressure) burst ~8 dB weaker than before (the "oh Danny" click)
+  burstgain: (calibration) multiplier on the release transient, every place of articulation; default 1.0"""
 import json, os
 LEGATO = json.loads(os.environ.get("BIDE_LEGATO", "{}") or "{}")
