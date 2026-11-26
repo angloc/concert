@@ -1,4 +1,5 @@
-"""opts.py - experiment switches. BIDE_LEGATO is a JSON object; every switch defaults off, so builds are unchanged unless set.
+"""opts.py - experiment switches. BIDE_LEGATO is a JSON object. Switches default off except the model corrections in FIXES
+(lipcon, burst, burstgain 0.3, codaasp, place), which default on.
   level: per-note loudness changes slewed over ~60 ms      pitch: legato glides, no leap kicks on short notes
   artic: vowel moves start earlier and approach targets more slowly (overlap, undershoot on short notes)
   cons:  consonant durations shrink with note length; no glottal dip at vowel-vowel word joins
@@ -15,7 +16,11 @@
   burstgain: (calibration) multiplier on the release transient, every place of articulation; default 1.0
   comma: phrase-final lengthening (x1.25) of the coda before punctuation inside a line, as at the line end
   codaasp: a coda P/T/K before a voiced sound is unaspirated: the glottis closes at the release, not ~25 ms into the next sound
+  keepcons: on short notes consonants keep >=70% of their table length and the vowel absorbs the tempo
+          (vowel floor 50 ms or 15% of the syllable, instead of 42% with codas squeezed to 35%)
   place: after a tongue-tip fricative (S Z SH ZH TH DH) the next tip place move waits until its last ~30 ms
          (the first "pipes": S drifted to a dental place mid-way, so its second half sounded like TH)"""
 import json, os
-LEGATO = json.loads(os.environ.get("BIDE_LEGATO", "{}") or "{}")
+# model corrections, on by default since 2026-11-26 (set false in BIDE_LEGATO to reproduce earlier builds)
+FIXES = dict(lipcon=True, burst=True, burstgain=0.3, codaasp=True, place=True)
+LEGATO = dict(FIXES, **json.loads(os.environ.get("BIDE_LEGATO", "{}") or "{}"))
