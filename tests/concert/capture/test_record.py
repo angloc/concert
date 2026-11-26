@@ -1,5 +1,8 @@
 """The film export: drawings from a headless browser, encoded by ffmpeg with the song."""
 
+import array
+import subprocess
+
 import imageio_ffmpeg
 import pytest
 
@@ -36,3 +39,48 @@ def test_record_fails_clearly_when_ffmpeg_cannot_read_the_song(tmp_path):
                 "1",
             ]
         )
+
+
+def test_record_keeps_the_song_in_step_with_an_excerpt(tmp_path):
+    """An excerpt from 30 s carries the song from 30 s: a click at 30.1 s in the song sounds 0.1 s into the video."""
+    ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+    song = tmp_path / "click.flac"
+    click = "aevalsrc=if(between(t\\,30.1\\,30.102)\\,0.8*sin(2*PI*1000*t)\\,0):s=48000:d=31"
+    subprocess.run(
+        [
+            ffmpeg,
+            "-loglevel",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            click,
+            "-ac",
+            "2",
+            str(song),
+        ],
+        check=True,
+    )
+    out = tmp_path / "excerpt.mp4"
+    record.main([str(out), str(song), "--from", "30", "--to", "30.25"])
+    pcm = subprocess.run(
+        [
+            ffmpeg,
+            "-loglevel",
+            "error",
+            "-i",
+            str(out),
+            "-ac",
+            "1",
+            "-ar",
+            "48000",
+            "-f",
+            "s16le",
+            "-",
+        ],
+        check=True,
+        capture_output=True,
+    ).stdout
+    samples = array.array("h", pcm)
+    onset = next(i for i, v in enumerate(samples) if abs(v) > 3000) / 48000
+    assert abs(onset - 0.1) < 0.005
