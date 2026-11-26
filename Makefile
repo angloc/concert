@@ -27,7 +27,7 @@ install:
 	fi
 	python3 -m pip install --disable-pip-version-check --quiet "uv==$(UV_VERSION)"
 	uv sync --locked --no-install-project
-	uv run --locked --no-install-project playwright install --with-deps chromium firefox webkit
+	uv run --no-sync playwright install --with-deps chromium firefox webkit
 	$(SUDO) apt-get install -y --no-install-recommends pulseaudio
 	@if [ ! -x $(NODE_DIR)/bin/node ]; then \
 		mkdir -p .tools && cd .tools && \
