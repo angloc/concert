@@ -11,7 +11,7 @@
   color: (diagnostic) one voice colour for every line, e.g. "warm"
   release: phrase ends fade over ~0.3 s with the glottis opening, then an aspiration tail (~0.35 s)
   relcoda: with release, a line ending in a consonant keeps the vowel (and its diphthong glide) at full voice;
-           the fade starts at the final consonant (the 'bide' heard as 'bu')
+           the fade starts at the final consonant, and the glottis opens for the out-breath only after it (the 'bide' heard as 'bu')
   lipcon: (bug fix) the lip constriction counts only where the lips, not the tongue tip, narrow the tube;
           stops a relaxing F/V lip gesture inheriting a T/D release (the "soft you" click)
   burst: (bug fix) release-burst strength follows oral pressure^1.5, as frication does, not its square root;
@@ -26,6 +26,7 @@
          T/D/N after S/Z close at the S place (homorganic /st/: no broadband hiss at the end of 'must')
   diphhold: diphthong glides reach the second element and hold it ~80 ms before what follows (glide up to 0.4 s)
   pricefront: (accent calibration) PRICE onset moved this fraction from [A] toward [AE], e.g. 0.35
+  finalrel: a line-final B/D/G releases at 55% of its time into a short voiced schwa ('bide-uh'); use with relcoda
   sibgain: (calibration) S/Z frication gain multiplier; default 1.0
   frlp: (calibration) 2-pole low-pass on the frication noise source at this frequency in Hz (e.g. 8000); default off"""
 import json, os

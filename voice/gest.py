@@ -173,7 +173,10 @@ class Score:
                     w = min(.40, max(.12, d * .52)); te = g["t1"] - min(.08, .25 * d)
                 for k in BODY: T[k].to(te - w * (1.0 if k not in ("LP",) else 1.15), te, v2[k])
         if LEGATO.get("release"):                 # phrase end: the glottis opens as the breath is let go
-            te = S[-1]["t1"]; T["GA"].add(te - .12, te + .10, te + .30, te + .40, .16)
+            te = S[-1]["t1"]
+            if LEGATO.get("relcoda") and S[-1]["role"] == "off":   # a final consonant is sung first; the breath goes after it
+                T["GA"].add(te - .01, te + .12, te + .30, te + .40, .16)
+            else: T["GA"].add(te - .12, te + .10, te + .30, te + .40, .16)
         # legato vowel-vowel joins at word boundaries: tiny glottal dip so words stay separate
         for a in range(1, len(nuc)):
             i = nuc[a]
@@ -208,6 +211,8 @@ class Score:
                 a = max(a, prev["t1"] - .03); b = max(b, a + .03)
             T["sTT"].to(a, b, place); T["hTT"].to(a, b, width)
         rel = t1; cl = d
+        # finalrel: a line-final voiced stop is released into a short schwa, as singers do ("bide-uh")
+        fin = bool(LEGATO.get("finalrel")) and nxt is None and not on and p in ("B", "D", "G")
         uv = ("P", "T", "K", "S", "SH", "CH", "F", "HH", "TH")
         nuv = nxt is not None and nxt["ph"] in uv; puv = prev is not None and prev["ph"] in uv
         def AV(v, l=.04, e=.03): T["AV"].add(t0 - l, t0 + .02, t1 - .02, t1 + e, v)
@@ -215,7 +220,7 @@ class Score:
             if p == "P":
                 cl = d * (.50 if on else (.80 if nextvoiced else .92))
                 if on and puv: cl = d * .85
-            elif p == "B": cl = d * .88
+            elif p == "B": cl = d * (.55 if fin else .88)
             else: cl = d * .96
             T["cLI"].add(t0 - .080, t0 + .012, t0 + cl - .003, t0 + cl + .080, -.20)
             body({"J": vsh["J"] * .55}, lead=.05, at=.2)
@@ -223,7 +228,7 @@ class Score:
             if p == "T":
                 cl = d * (.50 if on else (.75 if nextvoiced else .9))
                 if nuv: cl = d * .8
-            elif p == "D": cl = d * .86
+            elif p == "D": cl = d * (.55 if fin else .86)
             else: cl = d * .95
             ttp(t0 - .11, t0 - .05, 14.75, .28)
             T["cTT"].add(t0 - .080, t0 + .012, t0 + cl - .003, t0 + cl + .070, -.18)
@@ -231,7 +236,7 @@ class Score:
             body(W({"X": .74, "Y": .02, "TR": .05}, .68), lead=.08, at=.45)
         if p in ("K", "G", "NG"):
             pl = 9.5 + max(-.3, min(1.0, vsh["X"])) * 1.3
-            cl = d * (.46 if on else .8) if p == "K" else (d * .84 if p == "G" else d)
+            cl = d * (.46 if on else .8) if p == "K" else (d * (.55 if fin else .84) if p == "G" else d)
             T["sTD"].to(t0 - .12, t0 - .04, pl); T["hTD"].to(t0 - .12, t0 - .04, .55)
             if p == "NG" and nxt is None: T["cTD"].add(t0 - .09, t0 + .014, t1 + .20, t1 + .30, -.14)
             else: T["cTD"].add(t0 - .095, t0 + .014, t0 + cl - .003, t0 + cl + .150, -.14)
@@ -249,6 +254,9 @@ class Score:
             T["GA"].add(t0 - .012, t0 + max(.03, cl * .9), f0, f1, pk)
         if p in ("B", "D", "G"):
             T["VST"].add(t0 - .02, t0 + .01, t0 + cl, t0 + cl + .02, 1.0)
+            if fin:
+                for k, v in shape("AX").items():
+                    if k in ("J", "X", "Y", "TR"): T[k].to(t0 + cl, t0 + cl + .05, v)
             T["AV"].add(t0 - .01, t0 + .03, t0 + cl - .006, t0 + cl + .016, .55)
         # ---- fricatives
         if p in ("S", "Z"):
