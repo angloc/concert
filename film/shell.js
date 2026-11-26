@@ -159,10 +159,11 @@
   function toggle() { return state === 'playing' ? pause() : state === 'leaving' ? undefined : play(); }
   function seek(t) {
     if (state !== 'playing' && state !== 'paused') return; t = clamp(t, 0, TOTAL - .05); const was = state;
-    clock.start(t, .03); if (was === 'paused') { if (kind === 'silent') { sil.base = t; sil.run = false; } if (kind === 'media') audio.pause(); pausedAt = t; } lastN = -1; dirty = true; showMark(true); kick();
+    clock.start(t, .03); if (was === 'paused') { if (kind === 'silent') { sil.base = t; sil.run = false; } if (kind === 'media') audio.pause(); pausedAt = t; } lastN = -1; dirty = true; showMark(true); kick(); return t;
   }
+  const clockText = t => { const s = Math.round(t); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
   let pausedAt = null;
-  function restart() { if (state === 'open' || state === 'leaving') return; if (state === 'ended') return play(); seek(0); if (state === 'paused') play(); }
+  async function restart() { if (state === 'open' || state === 'leaving') return; if (state === 'ended') return play(); seek(0); if (state === 'paused') await play(); say('From the start'); }
   function mute() { clock.mute(!muted); showMark(true); say(muted ? 'Muted' : 'Sound on'); }
   function fullscreen() { const d = document, el = d.documentElement; try { if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d); else { const q = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (q && q.catch) q.catch(() => { }); } } catch (e) { } }
   const now = () => clock.t();
@@ -234,10 +235,10 @@
   addEventListener('keydown', e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return; const k = e.key;
     if (k === ' ' || k === 'Spacebar') { if (e.target === ball && !ball.hidden) return; e.preventDefault(); if (e.repeat) return; if (state === 'ended' && ball.hidden) return; stir(); toggle(); }
-    else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); seek(now2() + (k === 'ArrowLeft' ? -5 : 5)); }
+    else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); const t = seek(now2() + (k === 'ArrowLeft' ? -5 : 5)); if (t != null) say(clockText(t)); }
     else if (k === 'r' || k === 'R') restart(); else if (k === 'f' || k === 'F') fullscreen(); else if (k === 'm' || k === 'M') mute();
   });
-  addEventListener('resize', fit); addEventListener('orientationchange', fit); document.addEventListener('fullscreenchange', fit); document.addEventListener('visibilitychange', () => { lastFrame = 0; maxGap = 0; drewAt = 0; dirty = true; });
+  addEventListener('resize', fit); addEventListener('orientationchange', fit); document.addEventListener('fullscreenchange', () => { fit(); say(document.fullscreenElement ? 'Full screen' : 'Full screen off'); }); document.addEventListener('visibilitychange', () => { lastFrame = 0; maxGap = 0; drewAt = 0; dirty = true; });
   if (window.ResizeObserver) new ResizeObserver(fit).observe(desk);
 
   B.player = { get state() { return state; }, get muted() { return muted; }, get ready() { return ready; }, preparing, time: now2, index: () => lastN, play, pause, toggle, seek, restart, mute, fullscreen, stats, total: TOTAL, get audio() { return { kind, rate, ctx: ctx && ctx.state, dur: buf && buf.duration, late: late() }; }, clockTime: () => clock.t() };

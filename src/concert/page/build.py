@@ -2,11 +2,12 @@
 
 concert-page            full build (build/song.flac inside; a silent WAV of the right length if it is not there yet)
 concert-page --light    no song inside (the player runs on a silent clock)
-concert-page --song X   use another file;  --out Y  write elsewhere
+concert-page --song X   use another file;  --out Y  write elsewhere;  --version V  the version the page shows
 """
 
 import argparse
 import base64
+import html as markup
 import json
 import os
 import re
@@ -50,13 +51,16 @@ def kb(n):
     return f"{n / 1024:,.1f} KB" if n < 1 << 20 else f"{n / 1048576:,.2f} MB"
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     """Command line: assemble the page and print a size report (also written to SIZES.txt beside it)."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--light", action="store_true")
     ap.add_argument("--song", default=P("build", "song.flac"))
     ap.add_argument("--out", default=P("dist", "bide.html"))
-    a = ap.parse_args()
+    ap.add_argument(
+        "--version", default="0.0.0", help="application version shown on the page"
+    )
+    a = ap.parse_args(argv)
 
     files = [
         "build/timeline.js",
@@ -107,6 +111,7 @@ def main() -> None:
     html = read(P("film", "index.src.html"))
     html = html.replace("<!--SONG-->", base64.b64encode(song).decode())
     html = html.replace("<!--FILM-->", "\n".join(tags))
+    html = html.replace("<!--VERSION-->", markup.escape(a.version))
     for bad in re.findall(r"""(?:src|href)\s*=\s*["'](https?:)?//[^"']+""", html):
         print("warning: external reference in page:", bad, file=sys.stderr)
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)

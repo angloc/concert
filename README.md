@@ -37,7 +37,9 @@ The thread is the pencil line itself: the first mark on the paper and the last o
 
 ## Keys
 
-Space pauses. Left and right skip five seconds. R restarts. F is fullscreen. M mutes.
+Space pauses. Left and right skip five seconds. R restarts. F is fullscreen. M mutes. A screen reader hears what each key did.
+
+The page shows its version in the bottom right-hand corner.
 
 ## Developing
 
@@ -45,8 +47,8 @@ Work in the devcontainer (`.devcontainer/`), or in a dedicated virtual machine w
 
 | Target | What it does |
 |---|---|
-| `make install` | installs uv and the locked Python environment; refuses to run outside CI, a container or a dedicated machine |
-| `make verify` | the check to run before finishing any change: formatting, lint, vulnerability audit, tests, coverage and the documentation check |
+| `make install` | installs uv and the locked Python environment, Playwright's Chromium, Firefox and WebKit, PulseAudio, and the pinned Node toolchain of the Baseline check; refuses to run outside CI, a container or a dedicated machine |
+| `make verify` | the check to run before finishing any change: formatting, lint, vulnerability audits, tests (the page end to end in Chromium, Firefox and WebKit among them), the Baseline 2025 check of the page, coverage and the documentation check |
 | `make package` | builds the page from nothing into `dist/bide_<version>.html` with `SHA256SUMS`; takes a few minutes |
 | `make test` | packages, then runs the tests |
 | `make export` | packages, then draws the whole film in headless Chromium and writes it with the song to `build/bide.mp4` (1920×1080, 24 fps); takes hours without a GPU |

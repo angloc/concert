@@ -22,6 +22,7 @@ concert-record = "concert.capture.record:main"
 concert-shot = "concert.capture.shot:main"
 concert-sing = "concert.voice.sing:main"
 concert-timeline = "concert.page.timeline:main"
+baselinecheck = "repochecks.baseline:main"
 doccheck = "repochecks.doccheck:main"
 tagcheck = "repochecks.tagcheck:main"
 
@@ -54,6 +55,11 @@ packages = ["src/concert", "src/repochecks"]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"
 timeout = 60
+markers = [
+    "chromium: end-to-end tests in Chromium",
+    "firefox: end-to-end tests in Firefox",
+    "webkit: end-to-end tests in WebKit",
+]
 
 [tool.coverage.run]
 # Existing code under src/concert is exempt from the floor until increment I4 (decision 0015).

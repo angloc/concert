@@ -1,20 +1,5 @@
 # Project plan
 
-## I2: Version on the page and browser tests
-Benefit: a viewer can see which release they are watching, and every release is proven to play in Chromium, Firefox and WebKit.
-Deliver:
-- `make package` injects the version from `VERSION_TAG` as visible text in the page shell.
-- End-to-end tests with pytest and Playwright against `dist/bide_<version>.html` in Chromium, Firefox and WebKit: no network requests; no console errors; the song decodes to the sample-accurate clock with the right duration; the film draws and changes over time; space, arrows, R, F and M work, observed through the live region; the version is shown.
-- A Baseline 2025 check of the built page's HTML, CSS and JavaScript in `make verify`.
-- The `Tested by:` line of `platforms` updated, and this increment's exemption removed from decision 0015.
-Docs: change README.md
-Publishes: change `bide_<version>.html`
-Acceptance:
-- A page built with `VERSION_TAG=v1.2.3-rc.1` shows `1.2.3-rc.1`, and a test asserts it.
-- The end-to-end tests pass in all three engines in CI.
-- A non-Baseline 2025 feature in the page fails `make verify`.
-Read first: [platforms](docs/knowledge/platforms.md), [decision 0013](docs/decisions/0013-browser-target.md), [decision 0014](docs/decisions/0014-version-on-page.md)
-
 ## I4: Test coverage of the Python code
 Benefit: a regression in the voice, band, mix or page assembly is caught by a test before anyone has to listen for it.
 Deliver:

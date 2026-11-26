@@ -22,3 +22,6 @@ __pycache__/
 .coverage
 .coverage.*
 
+# Node toolchain and packages that make install fetches
+.tools/
+baseline/node_modules/

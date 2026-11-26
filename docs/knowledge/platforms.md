@@ -14,4 +14,4 @@ description: The files a release delivers and the platforms they target, with ho
 
 Current Chrome, Edge, Firefox and Safari, desktop and mobile, using only features at Baseline 2025 ([decision 0013](../decisions/0013-browser-target.md)).
 
-Tested by: not yet tested automatically; the browser end-to-end tests (Chromium, Firefox and WebKit through Playwright in CI, and real Safari on macOS and iOS by hand) arrive with increment I2.
+Tested by: the `verify` CI job, which runs the end-to-end tests in `tests/e2e/` against the built page in Chromium, Firefox and WebKit through Playwright, and the Baseline 2025 check of the page; real Safari on macOS and iOS by hand.

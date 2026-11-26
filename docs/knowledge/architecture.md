@@ -108,7 +108,7 @@ Hides how the picture is drawn: a WebGL2 and Canvas2D engine that paints pastel,
 
 ### Page assembly
 
-Hides how the film and song become one self-contained page with nothing fetched. `build` (`concert-page`) inlines the film code and the song (as base64 FLAC). `timeline` (`concert-timeline`) turns the performance timeline into film data. Interface: `build/` in, one HTML file out. Code: [src/concert/page/](../../src/concert/page/).
+Hides how the film and song become one self-contained page with nothing fetched. `build` (`concert-page`) inlines the film code and the song (as base64 FLAC), and writes the version (`--version`, which `make package` takes from `VERSION_TAG`) as visible text in the page shell ([decision 0014](../decisions/0014-version-on-page.md)). `timeline` (`concert-timeline`) turns the performance timeline into film data. Interface: `build/` in, one HTML file out. Code: [src/concert/page/](../../src/concert/page/).
 
 ### Review and capture tools
 
@@ -119,7 +119,7 @@ Hides how the film and song become one self-contained page with nothing fetched.
 
 ### Repository checks
 
-Hides the repository's own rules: the documentation check (`doccheck`) and the release tag check (`tagcheck`). Interface: command-line programs run by `make docs-check` and the release workflow. Code: [src/repochecks/](../../src/repochecks/).
+Hides the repository's own rules: the documentation check (`doccheck`), the release tag check (`tagcheck`) and the Baseline check of the built page (`baselinecheck`). `baselinecheck` splits the page into its markup, styles and scripts and runs ESLint over them with the Baseline rule of each language, from the pinned Node toolchain and configuration in [baseline/](../../baseline/) ([decision 0013](../decisions/0013-browser-target.md), [decision 0022](../decisions/0022-baseline-exceptions.md)). Interface: command-line programs run by `make docs-check`, `make verify` and the release workflow. Code: [src/repochecks/](../../src/repochecks/).
 
 ## Target platforms
 

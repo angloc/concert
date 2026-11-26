@@ -1,0 +1,15 @@
+{
+  "name": "concert-baseline-check",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Checks the built page's HTML, CSS and JavaScript against Baseline 2025.",
+  "devDependencies": {
+    "@eslint/css": "2.0.1",
+    "@html-eslint/eslint-plugin": "0.69.0",
+    "@html-eslint/parser": "0.69.0",
+    "eslint": "10.15.0",
+    "eslint-plugin-baseline-js": "0.7.7",
+    "prettier": "3.10.1"
+  }
+}

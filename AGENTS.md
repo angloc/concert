@@ -13,6 +13,7 @@ bide renders a song from nothing: a physical model of a singing voice, modelled 
 ## Exceptions
 - [Decision 0012](docs/decisions/0012-film-exception.md): `film/` is outside the JavaScript profile.
 - [Decision 0015](docs/decisions/0015-transitional-compliance.md): existing code is exempt from listed rules until named increments land.
+- [Decision 0022](docs/decisions/0022-baseline-exceptions.md): four features beyond Baseline 2025 stay in the page.
 
 ## Commands
 - Render one line of the raw voice: `uv run concert-sing --lines 6 --out build/line6.wav`. Add `--persona` for the Danny Boy personas.
