@@ -172,7 +172,8 @@ class Score:
                 te = g["t1"] + (.02 if not last else -.05)
                 if LEGATO.get("diphhold"):           # reach the second element and hold it ~80 ms before what follows
                     w = min(.40, max(.12, d * .52)); te = g["t1"] - min(.08, .25 * d)
-                    w = min(w, te - (g["t0"] + .40 * d))   # ...but the first element keeps at least 40% of the note
+                    if d < .25 and not last: te = g["t1"] + .02   # a short note has no time to hold: the glide runs on into the next consonant
+                    w = min(w if d >= .25 else 1.0, te - (g["t0"] + .40 * d))   # ...but the first element keeps at least 40% of the note
                 for k in BODY: T[k].to(te - w * (1.0 if k not in ("LP",) else 1.15), te, v2[k])
         if LEGATO.get("release"):                 # phrase end: the glottis opens as the breath is let go
             te = S[-1]["t1"]
