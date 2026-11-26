@@ -12,6 +12,7 @@ VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OH","OY","UH
 ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
 OFF= dict(P=.085,B=.07,T=.075,D=.065,K=.085,G=.07,S=.115,Z=.095,SH=.12,F=.095,V=.080,TH=.09,DH=.07,HH=.06,M=.100,N=.095,NG=.150,L=.105,R=.110,W=.07,Y=.07)
 VOICED_OBS = {"B","D","G","V","Z","DH"}
+VOICED = {"B","D","G","V","DH","Z","ZH","JH","M","N","NG","L","R","W","Y"}
 WEAK = {"the","and","are","in","or","as","to","am","a-","an","at","for","that","it's","with"}
 COL = dict(warm=(.45,.30),open=(.50,.24),soft=(.36,.42),plain=(.42,.32),bright=(.56,.20),hushed=(.16,.80),full=(.72,.12),
            breaking=(.40,.46),worn=(.26,.58),wonder=(.42,.44),rest=(.32,.52))
@@ -64,6 +65,10 @@ def segments(sc):
             end-=CUT.get(key(L,i),0.0)
             offd=[OFF[p]*rnd.uniform(.94,1.08) for p in off]
             if LEGATO.get("cons"): offd=[d*max(.6,min(1.0,s["d"]/.35)) for d in offd]
+            # t/d-deletion: word-final T/D closing a voicing-matched cluster, before a consonant-initial word (an' down, mus' go)
+            if (LEGATO.get("elide") and s["d"]<.35 and not s["word"].endswith("-") and len(off)>=2 and off[-1] in ("T","D")
+                    and (off[-2] in VOICED)==(off[-1]=="D") and i+1<n and info[i+1][0] and info[i+1][0][0]!="Y"):
+                off=off[:-1]; offd=offd[:-1]
             if i==n-1: offd=[d*1.25 for d in offd]
             k=len(offd); f={0:1,1:1,2:.78,3:.66}[min(3,k)]; offd=[d*f for d in offd]
             avail=end-t; vmin=max(.10,.42*avail)
