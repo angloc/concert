@@ -10,7 +10,7 @@ PI4 = math.pi * .25
 CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45, K=1.0, jhi=1.3)
 
 import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), "engine")); from opts import LEGATO
-LIPCON = bool(LEGATO.get("lipcon")); BURST = bool(LEGATO.get("burst")); BURSTGAIN = float(LEGATO.get("burstgain", 1.0))
+LIPCON = bool(LEGATO.get("lipcon")); BURST = bool(LEGATO.get("burst")); BURSTGAIN = float(LEGATO.get("burstgain", 1.0)); SIBGAIN = float(LEGATO.get("sibgain", 1.0))
 REL = bool(LEGATO.get("release"))
 
 def smooth_noise(n, dt, fc, rnd, amp):
@@ -193,7 +193,7 @@ def render_line(perf, li, cfg=None, debug=None):
                 amp = (max(0.0, dP / (1 + 8 * vel) - 350.0) / 8000.0) ** 1.5 * math.sqrt(min(a, .35) / .1)
                 if a < .0012: amp *= a / .0012
                 if c == 0:      # tongue tip
-                    if pl - LH > 14.8 and pl - LH < 15.12: ob, fc, trg = 2.1, 4400., .6       # s z
+                    if pl - LH > 14.8 and pl - LH < 15.12: ob, fc, trg = 2.1 * SIBGAIN, 4400., .6       # s z
                     elif pl - LH < 14.2: ob, fc, trg = 1.25, 2700., .6                          # sh
                     elif pl - LH < 14.8: ob, fc, trg = .9, 4800., 1.5                           # t d n
                     else: ob, fc, trg = .40, 6000., .3                                          # dh

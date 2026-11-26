@@ -134,7 +134,7 @@ class Score:
         for a, i in enumerate(nuc):
             g = S[i]; nx = S[i+1] if i + 1 < n else None
             v1, v2 = vowel_targets(g, nx, None)
-            if v2 is not None and LEGATO.get("tail") and a == len(nuc) - 1: v2 = mix(v1, v2, .5)
+            if v2 is not None and LEGATO.get("tailglide") and a == len(nuc) - 1: v2 = mix(v1, v2, .5)
             j = i
             while j - 1 >= 0 and S[j-1]["role"] == "on" and S[j-1]["syl"] == g["syl"]: j -= 1
             c0 = S[j]["t0"]; hi = (j == i)          # vowel-initial syllable
@@ -200,6 +200,7 @@ class Score:
         def ttp(a, b, place, width):
             # place: a tongue-tip fricative keeps its place until its last ~30 ms; the next tip target waits
             if LEGATO.get("place") and prev is not None and prev["ph"] in ("S", "Z", "SH", "ZH", "TH", "DH"):
+                if p in ("T", "D", "N") and prev["ph"] in ("S", "Z"): return     # /st/ is homorganic: close at the S place
                 a = max(a, prev["t1"] - .03); b = max(b, a + .03)
             T["sTT"].to(a, b, place); T["hTT"].to(a, b, width)
         rel = t1; cl = d

@@ -3,7 +3,8 @@
   level: per-note loudness changes slewed over ~60 ms      pitch: legato glides, no leap kicks on short notes
   artic: vowel moves start earlier and approach targets more slowly (overlap, undershoot on short notes)
   cons:  consonant durations shrink with note length; no glottal dip at vowel-vowel word joins
-  fit:   consonant gestures intrude at most 30% into neighbouring vowels   tail: line-final glide halved, long vowels prompt
+  fit:   consonant gestures intrude at most 30% into neighbouring vowels   tail: long vowels prompt
+  tailglide: line-final diphthong glide halved (was part of 'tail'; made 'bide' sound like 'bard')
   reduce: apply the connected-speech catalogue (engine/connected_speech.json): weak forms, t/d-deletion,
           degemination, place assimilation, yod coalescence, syllabic sonorants, linking glides
           (true = every rule; a list of rule ids = only those)
@@ -19,7 +20,9 @@
   keepcons: on short notes consonants keep >=70% of their table length and the vowel absorbs the tempo
           (vowel floor 50 ms or 15% of the syllable, instead of 42% with codas squeezed to 35%)
   place: after a tongue-tip fricative (S Z SH ZH TH DH) the next tip place move waits until its last ~30 ms
-         (the first "pipes": S drifted to a dental place mid-way, so its second half sounded like TH)"""
+         (the first "pipes": S drifted to a dental place mid-way, so its second half sounded like TH);
+         T/D/N after S/Z close at the S place (homorganic /st/: no broadband hiss at the end of 'must')
+  sibgain: (calibration) S/Z frication gain multiplier; default 1.0"""
 import json, os
 # model corrections, on by default since 2026-11-26 (set false in BIDE_LEGATO to reproduce earlier builds)
 FIXES = dict(lipcon=True, burst=True, burstgain=0.3, codaasp=True, place=True)
