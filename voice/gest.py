@@ -92,7 +92,9 @@ def vowel_targets(g, nxt, line):
     """list of (name_or_shape, fraction) for the nucleus."""
     p = g["ph"]; fz = g.get("f0", 0)
     if p in DIPH:
-        a, b, u = DIPH[p]; A = opened(a, fz); return A, mix(A, opened(b, fz), u)
+        a, b, u = DIPH[p]; A = opened(a, fz)
+        if p == "AY" and LEGATO.get("pricefront"): A = mix(A, opened("AE", fz), float(LEGATO["pricefront"]))
+        return A, mix(A, opened(b, fz), u)
     if p == "AH": s = opened("AX" if g.get("weak") else "AH", fz)
     elif p == "OH": s = opened("O", fz)                      # pure [o:] (Irish GOAT)
     elif p == "AO" and nxt and nxt["ph"] == "R": s = opened("OR", fz)
@@ -167,6 +169,8 @@ class Score:
                 # diphthong glide late, ending just into the next consonant
                 last = (i + 1 >= n)
                 te = g["t1"] + (.02 if not last else -.05)
+                if LEGATO.get("diphhold"):           # reach the second element and hold it ~80 ms before what follows
+                    w = min(.40, max(.12, d * .52)); te = g["t1"] - min(.08, .25 * d)
                 for k in BODY: T[k].to(te - w * (1.0 if k not in ("LP",) else 1.15), te, v2[k])
         if LEGATO.get("release"):                 # phrase end: the glottis opens as the breath is let go
             te = S[-1]["t1"]; T["GA"].add(te - .12, te + .10, te + .30, te + .40, .16)

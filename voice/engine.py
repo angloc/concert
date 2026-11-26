@@ -10,7 +10,7 @@ PI4 = math.pi * .25
 CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45, K=1.0, jhi=1.3)
 
 import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), "engine")); from opts import LEGATO
-LIPCON = bool(LEGATO.get("lipcon")); BURST = bool(LEGATO.get("burst")); BURSTGAIN = float(LEGATO.get("burstgain", 1.0)); SIBGAIN = float(LEGATO.get("sibgain", 1.0))
+LIPCON = bool(LEGATO.get("lipcon")); BURST = bool(LEGATO.get("burst")); BURSTGAIN = float(LEGATO.get("burstgain", 1.0)); SIBGAIN = float(LEGATO.get("sibgain", 1.0)); FRLP = float(LEGATO.get("frlp", 0) or 0)
 REL = bool(LEGATO.get("release"))
 
 def smooth_noise(n, dt, fc, rnd, amp):
@@ -34,6 +34,8 @@ def render_line(perf, li, cfg=None, debug=None):
     br = [b for b in perf["breaths"] if b["line"] == li]
     rnd = random.Random(7000 + li * 13)
     t_on = segs[0]["t0"]; t_off = segs[-1]["t1"]
+    t_fade = t_off - .20      # release: the voice starts to fade here; relcoda: not before a final consonant begins
+    if LEGATO.get("relcoda") and segs[-1].get("role") == "off": t_fade = max(t_fade, segs[-1]["t0"])
     T0 = (br[0]["t0"] if br else t_on) - .10
     T1 = t_off + .42
     sc = GE.Score(segs, perf); tk = sc.T
@@ -294,7 +296,7 @@ def render_line(perf, li, cfg=None, debug=None):
         onset = min(1.0, max(0.0, (t - (t_on - .03)) / .07)); offs = min(1.0, max(0.0, (t_off + .05 - t) / .16))
         if t < t_on - .03 or t > t_off + .05: onset = 0.0
         if REL:
-            u = min(1.0, max(0.0, (t - (t_off - .20)) / .30)); offs = 1 - u * u * (3 - 2 * u)
+            u = min(1.0, max(0.0, (t - t_fade) / .30)); offs = 1 - u * u * (3 - 2 * u)
             onset = min(1.0, max(0.0, (t - (t_on - .03)) / .07)) if t_on - .03 <= t <= t_off + .10 else 0.0
         lev = 10 ** ((db[fi] + arc[fi]) / 20.0)
         amp = lev * gate * (trans ** 1.2) * AV[fi] * onset * offs * (1 + sh) * (1 - .38 * fry * (1 if alt > 0 else 0))
@@ -330,7 +332,8 @@ def render_line(perf, li, cfg=None, debug=None):
         t = tend; pn += 1
     # leak area + noises
     R = rnd.random
-    lp1 = lp2 = lp3 = lp4 = lp5 = 0.0; a4 = 1 - math.exp(-2 * math.pi * 6000 * Ts[0]); hp = 0.0
+    lp1 = lp2 = lp3 = lp4 = lp5 = lp6 = lp7 = 0.0; a4 = 1 - math.exp(-2 * math.pi * 6000 * Ts[0]); hp = 0.0
+    a6 = 1 - math.exp(-2 * math.pi * FRLP * Ts[0]) if FRLP else 0.0
     Ka = 4200.0 * cfg["Ka"]; lk_p = None
     for k in range(nf):
         T = Ts[k]; n0 = k * fl; ga = S["GA"][k]; ga = ga if ga > 0 else 0.0
@@ -362,7 +365,9 @@ def render_line(perf, li, cfg=None, debug=None):
             lkc += dlk; ag[n] += lkc
             w = R() - .5
             lp2 += a2 * (w - lp2); lp3 += a2 * (lp2 - lp3); lp4 += a3 * (lp3 - lp4)
-            nfz[n] = cg * (lp3 - lp4) * (1.0 - fm * .65 * (1 - F))
+            v = cg * (lp3 - lp4) * (1.0 - fm * .65 * (1 - F))
+            if FRLP: lp6 += a6 * (v - lp6); lp7 += a6 * (lp6 - lp7); v = lp7
+            nfz[n] = v
     # inhaled air: turbulence also at lips/teeth handled by the same glottal/pharyngeal source
     gl = cfg["gload"]
     for i in range(N): ag[i] *= gl

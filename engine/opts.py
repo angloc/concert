@@ -10,6 +10,8 @@
           (true = every rule; a list of rule ids = only those)
   color: (diagnostic) one voice colour for every line, e.g. "warm"
   release: phrase ends fade over ~0.3 s with the glottis opening, then an aspiration tail (~0.35 s)
+  relcoda: with release, a line ending in a consonant keeps the vowel (and its diphthong glide) at full voice;
+           the fade starts at the final consonant (the 'bide' heard as 'bu')
   lipcon: (bug fix) the lip constriction counts only where the lips, not the tongue tip, narrow the tube;
           stops a relaxing F/V lip gesture inheriting a T/D release (the "soft you" click)
   burst: (bug fix) release-burst strength follows oral pressure^1.5, as frication does, not its square root;
@@ -22,7 +24,10 @@
   place: after a tongue-tip fricative (S Z SH ZH TH DH) the next tip place move waits until its last ~30 ms
          (the first "pipes": S drifted to a dental place mid-way, so its second half sounded like TH);
          T/D/N after S/Z close at the S place (homorganic /st/: no broadband hiss at the end of 'must')
-  sibgain: (calibration) S/Z frication gain multiplier; default 1.0"""
+  diphhold: diphthong glides reach the second element and hold it ~80 ms before what follows (glide up to 0.4 s)
+  pricefront: (accent calibration) PRICE onset moved this fraction from [A] toward [AE], e.g. 0.35
+  sibgain: (calibration) S/Z frication gain multiplier; default 1.0
+  frlp: (calibration) 2-pole low-pass on the frication noise source at this frequency in Hz (e.g. 8000); default off"""
 import json, os
 # model corrections, on by default since 2026-11-26 (set false in BIDE_LEGATO to reproduce earlier builds)
 FIXES = dict(lipcon=True, burst=True, burstgain=0.3, codaasp=True, place=True)
