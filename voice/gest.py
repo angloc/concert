@@ -120,7 +120,7 @@ class Score:
         self.T = {k: Track(s0[k]) for k in BODY}
         for k, v in dict(sTT=14.6, hTT=.25, sTD=9.4, hTD=.45).items(): self.T[k] = Track(v)
         for k in ("cTT", "cTD", "cLI", "cLD"): self.T[k] = Bumps(OPEN, "min")
-        for k in ("GA", "VEL", "LAT", "VST"): self.T[k] = Bumps(0.0, "max")
+        for k in ("GA", "VEL", "LAT", "VST", "BG"): self.T[k] = Bumps(0.0, "max")   # BG: extra release-burst gain
         self.T["AV"] = Bumps(1.0, "mul")
         self.build()
 
@@ -259,6 +259,7 @@ class Score:
             if fin:
                 for k, v in shape("AX").items():
                     if k in ("J", "X", "Y", "TR"): T[k].to(t0 + cl, t0 + cl + .05, v)
+                if LEGATO.get("finalburst"): T["BG"].add(t0 + cl - .03, t0 + cl - .02, t0 + cl + .03, t0 + cl + .04, float(LEGATO["finalburst"]))
             T["AV"].add(t0 - .01, t0 + .03, t0 + cl - .006, t0 + cl + .016, .55)
         # ---- fricatives
         if p in ("S", "Z"):

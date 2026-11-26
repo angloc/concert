@@ -79,6 +79,7 @@ def segments(sc):
             if LEGATO.get("cons"): offd=[d*max(.6,min(1.0,s["d"]/.35)) for d in offd]
             if RS: offd=[d*m for d,m in zip(offd,RS[i]["off_mult"])]
             if i==n-1: offd=[d*1.25 for d in offd]
+            if i==n-1 and LEGATO.get("finallen") and off and off[-1] in ("B","D","G"): offd[-1]*=float(LEGATO["finallen"])   # a sung final stop: held, then released
             elif LEGATO.get("comma") and BRK[i]: offd=[d*1.25 for d in offd]   # phrase-final lengthening at punctuation
             k=len(offd); f={0:1,1:1,2:.78,3:.66}[min(3,k)]; offd=[d*f for d in offd]
             avail=end-t; vmin=max(.05,.15*avail) if LEGATO.get("keepcons") else max(.10,.42*avail)

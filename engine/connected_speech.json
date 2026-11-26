@@ -6,6 +6,7 @@
   "C14": "Cruttenden, A. (2014) Gimson's Pronunciation of English, 8th ed., ch. 12 (connected speech: elision, assimilation, linking, weak forms)",
   "R09": "Roach, P. (2009) English Phonetics and Phonology, 4th ed., ch. 12 and 14",
   "W82": "Wells, J. C. (1982) Accents of English, vol. 1, 3.4",
+  "USR": "Project direction (2026-11-26): a singer short of time drops the D of 'and' before a vowel and keeps the time for the vowel",
   "L89": "Labov, W. (1989) The child as linguistic historian, Language Variation and Change 1 (t/d deletion)"
  },
  "rules": [
@@ -108,6 +109,38 @@
     {
      "in": "W EH1 N T # D AW1 N",
      "out": "W EH1 N T # D AW1 N",
+     "d": 0.25
+    }
+   ]
+  },
+  {
+   "id": "td-prevocalic",
+   "family": "elision",
+   "source": "USR (singers' practice under time pressure ('an' I'). C14/R09 keep the stop before a vowel)",
+   "does": "on a short note, a word-final D or T after a homorganic N or L drops before a vowel-initial word; the N or L links straight into the vowel",
+   "gate": {
+    "max_syl_d": 0.35
+   },
+   "params": {
+    "after": [
+     "N",
+     "L"
+    ]
+   },
+   "examples": [
+    {
+     "in": "AE0 N D # AY1",
+     "out": "AE0 N # AY1",
+     "d": 0.25
+    },
+    {
+     "in": "AE0 N D # AY1",
+     "out": "AE0 N D # AY1",
+     "d": 0.5
+    },
+    {
+     "in": "AE0 N D # D AW1 N",
+     "out": "AE0 N D # D AW1 N",
      "d": 0.25
     }
    ]

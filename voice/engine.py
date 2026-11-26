@@ -183,7 +183,7 @@ def render_line(perf, li, cfg=None, debug=None):
         if vst > 0 and Act < .02: tau = max(tau, .030 * vst)
         Pio += (Pq - Pio) * (1 - math.exp(-dtf / tau))
         # transient at release
-        if prevAc < .006 and Act >= .006 and Pio > 600: tr_env = ((Pio / 8000.0) ** 1.5 if BURST else math.sqrt(Pio / 8000.0)) * BURSTGAIN   # burst: same pressure law as frication
+        if prevAc < .006 and Act >= .006 and Pio > 600: tr_env = ((Pio / 8000.0) ** 1.5 if BURST else math.sqrt(Pio / 8000.0)) * BURSTGAIN * (1 + S["BG"][i])   # burst: same pressure law as frication
         prevAc = Act
         tr_env *= math.exp(-dtf / .0030)
         gains = [0.0] * len(sites)

@@ -121,6 +121,12 @@ def td_deletion(sy, i, R, accent):
     p = s["off"].pop(); s["off_mult"].pop(); return "%s loses final %s" % (s["word"], p)
 
 
+def td_prevocalic(sy, i, R, accent):
+    s = sy[i]; nx = _next_word_start(sy, i)
+    if nx is None or nx["on"] or len(s["off"]) < 2 or s["off"][-1] not in ("T", "D") or s["off"][-2] not in R["params"]["after"]: return None
+    p = s["off"].pop(); s["off_mult"].pop(); return "%s loses final %s before %s" % (s["word"], p, nx["word"])
+
+
 def degemination(sy, i, R, accent):
     s = sy[i]; nx = _next_word_start(sy, i)
     if nx is None or not s["off"] or not nx["on"] or s["off"][-1] != nx["on"][0]: return None
@@ -154,7 +160,7 @@ def linking_glide(sy, i, R, accent):
     nx["on"] = [g]; nx["on_mult"] = [P["shorten"]]; return "%s + %s linked by %s" % (s["word"], nx["word"], g)
 
 
-RULES = {"weak-forms": weak_forms, "td-deletion": td_deletion, "degemination": degemination,
+RULES = {"weak-forms": weak_forms, "td-deletion": td_deletion, "td-prevocalic": td_prevocalic, "degemination": degemination,
          "place-assimilation": place_assimilation, "yod-coalescence": yod_coalescence,
          "syllabic-sonorant": syllabic_sonorant, "linking-glide": linking_glide}
 

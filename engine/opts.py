@@ -30,7 +30,9 @@
   sibgain: (calibration) S/Z frication gain multiplier; default 1.0
   frlp: (calibration) 2-pole low-pass on the frication noise source at this frequency in Hz (e.g. 8000); default off
   siblip: (calibration) lip aperture in cm during S/Z (e.g. 0.7) instead of the open 0.95-1.35; lowers the sibilant peak
-  fricrel: an S before a voiced sound tapers: the glottis has closed by the release and the tongue lets go along u**fricrel (1.0) instead of the stop-like u**2.2"""
+  fricrel: an S before a voiced sound tapers: the glottis has closed by the release and the tongue lets go along u**fricrel (1.0) instead of the stop-like u**2.2
+  finalburst: extra gain on the release burst of a line-final B/D/G under finalrel (e.g. 5 = x6)
+  finallen: a line-final B/D/G is this many times longer (e.g. 2.0); the time comes out of the vowel before it"""
 import json, os
 # model corrections, on by default since 2026-11-26 (set false in BIDE_LEGATO to reproduce earlier builds)
 FIXES = dict(lipcon=True, burst=True, burstgain=0.3, codaasp=True, place=True)
