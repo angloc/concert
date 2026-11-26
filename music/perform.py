@@ -124,7 +124,7 @@ def tracks(sc,segs):
             nt["apex"]=False
         top=max(x["m"] for x in notes)
         for x in notes: x["apex"]=x["m"]==top
-        ten0,bre0=COL[L["color"]]
+        ten0,bre0=COL[LEGATO.get("color") or L["color"]]       # "color": diagnostic override for every line
         i0,i1=int(t0*CR),min(n-1,int(t1*CR))
         for i in range(i0,i1+1):
             t=i/CR
