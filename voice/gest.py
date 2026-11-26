@@ -264,7 +264,7 @@ class Score:
         if p in ("S", "Z"):
             ttp(t0 - .12, t0 - .03, 14.92, .42)
             T["cTT"].add(t0 - .080, t0 + .020, t1 - .012, t1 + .100, .30 if p == "S" else .33)
-            body({"J": .10, "LA": min(1.35, max(.95, vsh["LA"])), "X": max(vsh["X"], .35) if vsh["X"] > 0 else vsh["X"] * .5 + .15}, lead=.06, at=.3)
+            body({"J": .10, "LA": float(LEGATO["siblip"]) if LEGATO.get("siblip") else min(1.35, max(.95, vsh["LA"])), "X": max(vsh["X"], .35) if vsh["X"] > 0 else vsh["X"] * .5 + .15}, lead=.06, at=.3)
             if p == "S": T["GA"].add(t0 - .035, t0 + .35 * d, t1 - (.055 if not nuv else 0), t1 + (.018 if not nuv else .05), .24)
             else: T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .04, t1 + .02, .055)
         if p in ("CH", "JH"):
