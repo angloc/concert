@@ -74,6 +74,34 @@ The inventory also includes compromises outside the catalogue:
 
 Each compromise is declared in data with an id, a source, a cost and examples, in the way catalogue rules are declared now.
 
+### Singing habits found on Danny Boy line 4 (2026-11-26)
+
+Three habits came out of the line 4 work. Each is general as a mechanism, but none is universal: a style, a singer or a performance may want it, allow it or rule it out. They therefore enter the inventory with permissions, not as model defaults. Two of them are not time-saving compromises but emphases that spend time; the inventory holds both kinds, because the solver has to account for time in either direction.
+
+| id | does | kind | gate | default permission | switch now |
+|---|---|---|---|---|---|
+| `final-stop-release` | a line-final B, D or G is released into a short voiced schwa ("bide-uh") | diction style | line-final voiced stop | mandated by a classical or folk singer; permitted otherwise | `finalrel` |
+| `final-stop-hold` | a line-final stop is held (about 110 ms at 1.75×), the time taken from the vowel before it | emphasis, paid for by borrowing kind 2 | line-final stop after a long vowel | permitted; the performance sets the amount | `finallen` (2.2) |
+| `td-prevocalic` | a word-final D or T after N or L drops before a vowel-initial word ("an' I") | elision under time pressure | note shorter than 0.35 s | permitted; forbidden under the emphasis mark | `reduce: ["td-prevocalic"]` |
+
+Draft declarations, in the catalogue's format:
+
+```json
+{"id": "final-stop-release", "family": "diction", "source": "USR (singers' practice, Danny Boy 'bide')",
+ "does": "a line-final voiced stop is released at 55% of its time into a short voiced schwa",
+ "gate": {"line_final": true, "phones": ["B", "D", "G"]}, "cost": "time: none; style: marked in pop and crooning",
+ "examples": [{"in": "B PRICE1 D |", "out": "B PRICE1 D(ax) |"}]}
+{"id": "final-stop-hold", "family": "emphasis", "source": "USR (a singer sacrifices 'and' and emphasises 'bide')",
+ "does": "a line-final stop is lengthened by a factor; the time comes out of the vowel before it",
+ "gate": {"line_final": true, "min_prev_vowel_d": 0.4}, "params": {"factor": 2.2},
+ "cost": "time: borrowed from the preceding vowel", "examples": [{"in": "AY 0.93 + D 0.077", "out": "AY 0.84 + D 0.17"}]}
+{"id": "td-prevocalic", "family": "elision", "source": "USR (C14/R09 keep the stop before a vowel)",
+ "gate": {"max_syl_d": 0.35}, "params": {"after": ["N", "L"]}, "cost": "low on a function word, high on a content word",
+ "examples": [{"in": "AE0 N D # AY1", "out": "AE0 N # AY1", "d": 0.25}]}
+```
+
+`td-prevocalic` is already in `engine/connected_speech.json`. The other two are switches in `gest.py` and `perform.py` until step 4 gives them declared homes. The gate values (0.35 s, factor 2.2, the 0.4 s vowel floor) are first judgements from one line and are to be calibrated with the rest.
+
 ## Cost and selection
 
 Cost approximates the loss of intelligibility or style. Compromises that listeners recover without noticing are cheap, such as degemination and assimilation. Deletion costs more. A weak form of a content word costs most.
@@ -123,6 +151,31 @@ Feasibility is only meaningful if the model renders the ideal correctly. The fol
 
 Optional: `comma` adds phrase-final lengthening at punctuation. It had little audible effect.
 
+The homorganic /st/ rule (an S followed by T stays at the S place, "must") was added to `place` on 2026-11-26 and is therefore also on by default.
+
+**Open question on `burstgain`.** At 1.75× on the default voice, 0.3 removed a click. In the full female build the ghost verse lost intelligibility, and weaker stop releases under the ghost's extra breath noise are the first suspect. To test: compare the ghost lines with the five corrections on and off, and against the `dboh` build, which predates them.
+
+### Candidates from the line 4 work (2026-11-26)
+
+These correct the physics or timing of the model, so once confirmed they apply to every song and voice without a decision per song. All are off by default until checked on the female singer at 1.0×, including the ageing and ghost stages; every value below was set on line 4 at 1.75× with the default male voice.
+
+- `relcoda`: the end-of-line breath opens the glottis only after a final consonant. Before, it opened 120 ms before the line end and devoiced the D of "bide" into "hhh".
+- `fricrel`: an S before a voiced sound tapers over its last 15–20 ms. The glottis closes by the release and the tongue lets go along u^1.0 instead of the stop-like u^2.2. Before, the S fell about 12 dB in 4–6 ms and was heard as a hiss-click.
+- `siblip`: the lip opening during S and Z is set (0.5 cm) instead of the open 0.95–1.35 cm. The S peaked at 8.5–8.9 kHz against about 6.8 kHz in Jongman et al. (2000); low-pass filtering moved the level but not the peak, which is a front-cavity resonance. The value needs checking on the shorter female tract.
+- `diphhold`, with its refinements: a diphthong reaches its second element before a following consonant and holds it (up to 80 ms); the first element keeps at least 40% of the note and is approached at the default stiffness; a diphthong shorter than 250 ms glides on into the next consonant instead of holding. Together these fixed "bide" heard as "bard", "I" heard as "Ar", and the clipped "I must". The 40% and 250 ms thresholds are judgements from one line.
+
+### Not adopted
+
+- `frlp` (low-pass on the frication source, 11 kHz in the line 4 tests): probably redundant, since the build's microphone stage already low-passes at 11 kHz and the test renders lacked that stage. Check before adopting.
+- `sibgain`: left at 1.0; the S was too high in pitch, not too weak.
+- `finalburst`: six times the release gain on the final D added only about 2 dB, because a voiced stop has little oral pressure behind it. Holding the stop (`final-stop-hold`) is what made the D audible. Candidate for removal.
+- `pricefront`: a fronter onset for PRICE. An accent option, not used for Danny Boy.
+- `tailglide`: only preserves the earlier halving of a line-final diphthong, for comparison.
+
+### Song data
+
+"It's you, it's you" and "It's I'll be here" had been in the Danny Boy score since the first commit; Weatherly's text is "'Tis". Corrected on 2026-11-26 and sung T IH Z. This is song-specific, but it suggests one general step at song intake: check the lyric text against the published source before anything is tuned to it.
+
 ## Calibration
 
 Feasibility thresholds and costs are set from listening verdicts, not chosen once by eye. Each verdict is recorded with the plan measures for its line, so a threshold change can be checked against every earlier judgement.
@@ -133,14 +186,16 @@ Verdicts so far for Danny Boy:
 - at 1.0× (E1): lines 4, 12 and 13 good;
 - forcing the warm colour at 1.75× (E2) did not help;
 - at 1.75× with the model corrections (G1, G2): lines 4, 12 and 13 intelligible, with or without `keepcons`;
-- the mountainside clipping was fixed by `fit`.
+- the mountainside clipping was fixed by `fit`;
+- line 4 at 1.75×, default voice, 2026-11-26: "bide" lacked its D until `relcoda` and `finallen`; "I" sounded "Ar" until the diphthong onset rule; "'tis you" had a hiss-click until `siblip` (0.5 better than 0.7) and `fricrel`; "and I" sounded hurried until `td-prevocalic`; "I must" sounded clipped until short diphthongs glided on (V1, judged fine);
+- full build at 1.0× with the five corrections (dbfix): intelligibility fell verse by verse and the last verse was hardly intelligible. The original female build was acceptable. Cause not yet isolated (see the `burstgain` question).
 
 ## Plan
 
-1. **Model corrections.** Done: the five switches above, now on by default. A full Danny Boy build at 1.0× is under review.
+1. **Model corrections.** The five switches above are on by default; the full 1.0× build lost intelligibility in the later verses, so the `burstgain` question comes first. Then confirm the line 4 candidates on the female singer at 1.0× and make them defaults.
 2. **Timing.** Tested `keepcons` at 1.75× on lines 1, 4, 12 and 13 (G1 against G2). With the model corrections in place, both were intelligible and differed little, so the earlier failures came from the model faults, not the timing. `keepcons` stays optional until the feasibility measures (step 3) show where it matters.
 3. **Feasibility measures.** Implement the per-syllable test over perf.json: open time, target attainment and consonant floors. Calibrate it against the verdicts above, so that it separates good lines from bad ones.
-4. **Compromise inventory in data.** Merge the connected-speech catalogue and the timing and phonation compromises into one declared inventory with costs. Replace the fixed gates with the feasibility test. Add per-word stacking cost.
+4. **Compromise inventory in data.** Merge the connected-speech catalogue, the timing and phonation compromises and the singing habits above into one declared inventory with costs. Replace the fixed gates with the feasibility test. Add per-word stacking cost.
 5. **Permission layers.** Add forbid, permit and mandate to the accent, singer and performance files, resolved with the precedence above. Add the emphasis mark to the song interpretation.
 6. **Preflight.** Run the solver over the whole song. Report shortfalls as warnings with remedies, and offer a strict mode.
 7. **Wild Rover.** Write the score and lexicon, choose the baritone's permissions and the style's mandates, and run preflight before the first render.
