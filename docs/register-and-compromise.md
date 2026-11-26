@@ -61,7 +61,7 @@ The layers run from general to specific:
 3. the singer (`singers/<name>/`);
 4. the performance, meaning the song interpretation, down to the line or word. The emphasis mark for contrastive words belongs here: it forbids weak forms and stacking on that word.
 
-**Proposed precedence (open):** the more specific layer wins. The exception is that an accent mandate can only be overridden by an explicit mention, so a careful singer cannot quietly strip the accent.
+**Precedence (decided 2026-11-26):** accent over singer over performance. When layers conflict, the accent's setting stands, then the singer's; the performance decides only what the other two leave open.
 
 ## Shortfall
 
@@ -74,7 +74,7 @@ If the permitted compromises cannot make a syllable feasible, preflight reports 
 
 The user can then permit that compromise, change the demand (the tempo or the note), or accept the result.
 
-**Proposed default (open):** warn and render the best feasible version. A strict mode refuses.
+**Default (decided 2026-11-26):** warn and render the best feasible version. A strict mode refuses.
 
 ## Calibration
 
@@ -94,7 +94,5 @@ Each verdict is recorded with the plan measures for the line, so that changes to
 
 ## Open questions
 
-1. Precedence between layers, and how the accent-mandate exception is written (see above).
-2. The default for shortfall: warn or refuse.
-3. Whether feasibility is judged per syllable or per word. Stacking suggests per word.
-4. Whether tempo flexibility counts as a compromise, as with rubato or a held note borrowing time across a bar line, or is always a decision of the performance.
+1. Whether feasibility is judged per syllable or per word. Stacking suggests per word.
+2. Whether tempo flexibility counts as a compromise, as with rubato or a held note borrowing time across a bar line, or is always a decision of the performance.
