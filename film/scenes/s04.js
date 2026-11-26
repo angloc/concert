@@ -1,8 +1,8 @@
-// s04 · THE GATE  (29.4 – 36.9)  "It's you, it's you must go and I must bide"
+// s04 · THE GATE  (29.4 – 36.9)  "'Tis you, 'tis you must go and I must bide"
 //
 // Feeling: the body holds on after the mind has let go.
-// Words (scene time): It's .24 · YOU .61 · it's 1.13 · YOU 1.50 · must 2.87 · GO 3.33 · and 3.88 · I 4.34 · must 4.72 · BIDE 5.17–7.2
-// A  -.4 – 2.35  a step apart, neither moves. She breathes in (.2) and goes into him; they meet on "you" (.61). His head comes down on hers. On the second "it's you" she holds harder.
+// Words (scene time): 'Tis .24 · YOU .61 · 'tis 1.13 · YOU 1.50 · must 2.87 · GO 3.33 · and 3.88 · I 4.34 · must 4.72 · BIDE 5.17–7.2
+// A  -.4 – 2.35  a step apart, neither moves. She breathes in (.2) and goes into him; they meet on "you" (.61). His head comes down on hers. On the second "'tis you" she holds harder.
 // B  2.35 – 3.9  CLOSE. Hands already sliding. Fingertips stay (3.45–3.72), part. A strand of his scarf has caught round her finger; it runs out of its slack, tightens, and one stitch lets go.
 // C  3.9 – end   Wide, behind her. He walks; the thread pays out of the scarf. "I must": the wind drops, her skirt comes to rest. He stops. 5.95 he looks back. Nobody moves. Only the thread.
 // Eye: their two heads → the finger with the red loop → the red line → the small dark figure.

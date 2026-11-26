@@ -21,7 +21,7 @@ gone     G CLOTH1 N
 all      THOUGHT1 L
 roses    R GOAT1 Z KIT0 Z
 falling  F THOUGHT1 L KIT0 NG
-it's     KIT0 T S
+'tis     T KIT0 Z
 you      Y GOOSE0
 must     M STRUT0 S T
 go       G GOAT1

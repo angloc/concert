@@ -30,8 +30,8 @@ V1 = [
   S("The","DH AH",("C",1)), S("sum-","S AH",("D",1)), S("mer's","M ER Z",("E",1)),
   S("gone","G AO N",("F",3)), S("and","AE N D",("E",1)), S("all","AO L",("F",1)), S("the","DH AH",("B",1)), S("ro-","R OH",("A",1)), S("ses","Z IH Z",("F",1)),
   S("fall-","F AO",("E",1),("D",1)), S("ing","L IH NG",("B,",2)) ]),
- dict(text="It's you, it's you must go and I must bide", mood="plain truth, almost spoken, 'I must bide' swallowed", dyn=(0.46,0.36), color="plain", syl=[
-  S("It's","IH T S",("C",1)), S("you","Y UW",("D",1)), S("it's","IH T S",("E",1)),
+ dict(text="'Tis you, 'tis you must go and I must bide", mood="plain truth, almost spoken, 'I must bide' swallowed", dyn=(0.46,0.36), color="plain", syl=[
+  S("'Tis","T IH Z",("C",1)), S("you","Y UW",("D",1)), S("'tis","T IH Z",("E",1)),
   S("you","Y UW",("F",3)), S("must","M AH S T",("G",1)), S("go","G OH",("F",1)), S("and","AE N D",("E",1)), S("I","AY",("D",1)), S("must","M AH S T",("E",1)),
   S("bide","B AY D",("D",4)) ]),
  dict(text="But come ye back when summer's in the meadow", mood="hope opening, brighter, forward", dyn=(0.54,0.62), color="bright", syl=[
@@ -42,8 +42,8 @@ V1 = [
   S("Or","AO R",("A",1)), S("when","W EH N",("B",1)), S("the","DH AH",("c",1)),
   S("val-","V AE",("d",3)), S("ley's","L IY Z",("c",1)), S("hushed","HH AH SH T",("c",1)), S("and","AE N D",("B",1)), S("white","W AY T",("A",1)), S("with","W IH DH",("F",1)),
   S("snow","S N OH",("E",4)) ]),
- dict(text="It's I'll be here in sunshine or in shadow", mood="CLIMAX: the vow, full voice, unguarded", dyn=(0.66,0.90), color="full", syl=[
-  S("It's","IH T S",("A",1)), S("I'll","AY L",("A",1)), S("be","B IY",("A",1)),
+ dict(text="'Tis I'll be here in sunshine or in shadow", mood="CLIMAX: the vow, full voice, unguarded", dyn=(0.66,0.90), color="full", syl=[
+  S("'Tis","T IH Z",("A",1)), S("I'll","AY L",("A",1)), S("be","B IY",("A",1)),
   S("here","HH IH R",("f",3)), S("in","IH N",("e",1)), S("sun-","S AH N",("e",1)), S("shine","SH AY N",("d",1)), S("or","AO R",("B",1)), S("in","IH N",("d",1)),
   S("sha-","SH AE",("A",1),("F",1)), S("dow","D OH",("D",2)) ]),
  dict(text="Oh Danny boy, oh Danny boy, I love you so", mood="coming down from the vow; 'I love you so' nearly breaks", dyn=(0.58,0.34), color="breaking", syl=[
