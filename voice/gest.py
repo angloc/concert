@@ -197,6 +197,11 @@ class Score:
         def body(tgt, lead=.045, at=.35, keys=None):
             for k in (keys or tgt):
                 T[k].to(t0 - lead, t0 + at * d, tgt[k]); self.claim[(i, k)] = t0 + min(.8, at + .22) * d
+        def ttp(a, b, place, width):
+            # place: a tongue-tip fricative keeps its place until its last ~30 ms; the next tip target waits
+            if LEGATO.get("place") and prev is not None and prev["ph"] in ("S", "Z", "SH", "ZH", "TH", "DH"):
+                a = max(a, prev["t1"] - .03); b = max(b, a + .03)
+            T["sTT"].to(a, b, place); T["hTT"].to(a, b, width)
         rel = t1; cl = d
         uv = ("P", "T", "K", "S", "SH", "CH", "F", "HH", "TH")
         nuv = nxt is not None and nxt["ph"] in uv; puv = prev is not None and prev["ph"] in uv
@@ -215,7 +220,7 @@ class Score:
                 if nuv: cl = d * .8
             elif p == "D": cl = d * .86
             else: cl = d * .95
-            T["sTT"].to(t0 - .11, t0 - .05, 14.75); T["hTT"].to(t0 - .11, t0 - .05, .28)
+            ttp(t0 - .11, t0 - .05, 14.75, .28)
             T["cTT"].add(t0 - .080, t0 + .012, t0 + cl - .003, t0 + cl + .070, -.18)
             body({"J": min(vsh["J"], .22) * .8 + .02}, lead=.05, at=.25)
             body(W({"X": .74, "Y": .02, "TR": .05}, .68), lead=.08, at=.45)
@@ -242,7 +247,7 @@ class Score:
             T["AV"].add(t0 - .01, t0 + .03, t0 + cl - .006, t0 + cl + .016, .55)
         # ---- fricatives
         if p in ("S", "Z"):
-            T["sTT"].to(t0 - .12, t0 - .03, 14.92); T["hTT"].to(t0 - .12, t0 - .03, .42)
+            ttp(t0 - .12, t0 - .03, 14.92, .42)
             T["cTT"].add(t0 - .080, t0 + .020, t1 - .012, t1 + .100, .30 if p == "S" else .33)
             body({"J": .10, "LA": min(1.35, max(.95, vsh["LA"])), "X": max(vsh["X"], .35) if vsh["X"] > 0 else vsh["X"] * .5 + .15}, lead=.06, at=.3)
             if p == "S": T["GA"].add(t0 - .035, t0 + .35 * d, t1 - (.055 if not nuv else 0), t1 + (.018 if not nuv else .05), .24)
@@ -250,7 +255,7 @@ class Score:
         if p in ("CH", "JH"):
             # affricate: postalveolar closure released into an SH-like channel for the rest of the segment
             cl = d * (.55 if p == "CH" else .60)
-            T["sTT"].to(t0 - .12, t0 - .04, 13.6); T["hTT"].to(t0 - .12, t0 - .04, .48)
+            ttp(t0 - .12, t0 - .04, 13.6, .48)
             T["cTT"].add(t0 - .080, t0 + .012, t0 + cl - .003, t0 + cl + .012, -.18)
             T["cTT"].add(t0 + cl - .010, t0 + cl, t1 - .012, t1 + .110, .40 if p == "CH" else .43)
             body({"J": .12, "LA": .95, "LP": .40, "X": .45, "Y": .10}, lead=.07, at=.35)
@@ -260,12 +265,12 @@ class Score:
                 T["AV"].add(t0 - .01, t0 + .03, t0 + cl - .006, t0 + cl + .016, .55)
                 T["GA"].add(t0 + cl - .01, t0 + cl + .02, t1 - .04, t1 + .02, .055)
         if p == "ZH":
-            T["sTT"].to(t0 - .12, t0 - .03, 13.5); T["hTT"].to(t0 - .12, t0 - .03, .5)
+            ttp(t0 - .12, t0 - .03, 13.5, .5)
             T["cTT"].add(t0 - .085, t0 + .022, t1 - .012, t1 + .120, .43)
             body({"J": .12, "LA": .95, "LP": .40, "X": .45, "Y": .10}, lead=.07, at=.35)
             T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .04, t1 + .02, .055); AV(.85)
         if p == "SH":
-            T["sTT"].to(t0 - .12, t0 - .03, 13.5); T["hTT"].to(t0 - .12, t0 - .03, .5)
+            ttp(t0 - .12, t0 - .03, 13.5, .5)
             T["cTT"].add(t0 - .085, t0 + .022, t1 - .012, t1 + .120, .40)
             body({"J": .12, "LA": .95, "LP": .40, "X": .45, "Y": .10}, lead=.07, at=.35)
             T["GA"].add(t0 - .035, t0 + .35 * d, t1 - .055, t1 + .018, .24)
@@ -275,7 +280,7 @@ class Score:
             if p == "F": T["GA"].add(t0 - .035, t0 + .35 * d, t1 - .05, t1 + .018, .22)
             else: T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .04, t1 + .02, .035); AV(.85)
         if p in ("DH", "TH"):
-            T["sTT"].to(t0 - .10, t0 - .03, 15.25); T["hTT"].to(t0 - .10, t0 - .03, .2)
+            ttp(t0 - .10, t0 - .03, 15.25, .2)
             T["cTT"].add(t0 - .075, t0 + .012, t1 - .010, t1 + .10, .38)
             body({"J": .14, "X": max(vsh["X"], .2)}, lead=.05, at=.3)
             T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .035, t1 + .02, .03); AV(.60)
@@ -286,7 +291,7 @@ class Score:
                 tgt = shape("LD"); body({k: tgt[k] for k in ("X", "Y", "TR", "J")}, lead=.09, at=.45)
             else:
                 body({"X": vsh["X"] * .35 - .05, "Y": vsh["Y"] * .4 + .12, "J": min(.30, vsh["J"])}, lead=.05, at=.4)
-            T["sTT"].to(t0 - .12, t0 - .03, 14.5); T["hTT"].to(t0 - .12, t0 - .03, .35)
+            ttp(t0 - .12, t0 - .03, 14.5, .35)
             T["cTT"].add(t0 - .085, t0 + (.015 if on else .045), t1 - .008, t1 + .11, .45 if on else .55)
             T["LAT"].add(t0 - .05, t0 + .02, t1 - .02, t1 + .04, .6)
         if p == "R":
