@@ -14,5 +14,6 @@ Provenance: refactored from the repository's own documents on the `legato-experi
 * [Platforms](platforms.md) - the delivered file and the browsers it targets
 * [Voice model](voice-model.md) - how the physical model of the singing voice works, and the intelligibility evidence for it
 * [Singer profile](singer-profile.md) - who is singing, independent of any song: the profile fields that exist, capacity today, personas as overlays
+* [Description](description/index.md) - the approved design for describing songs, arrangements, performances, singers and instruments as data, and the score format evidence; not yet built
 * [Performance](performance/index.md) - feasibility of a sung performance, compromises, timing, model corrections and listening verdicts
 * [Film](film/index.md) - the drawing APIs for people, places, weather and the red thread

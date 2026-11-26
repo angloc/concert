@@ -45,6 +45,10 @@ Transposition is not a singer property; it stays with the song key (`key.json`).
 
 Capacity is not yet per singer. Every singer shares the same gesture time constants, and no profile states a range, registers or breath. Articulator approach speed is set per gesture by a stiffness (`dv`) and release curves (the `u**2.2` stop release, `fricrel`), and consonant durations by `music/perform.py`. These are the numbers an agility field would bound. The profile fields that could make capacity per singer are listed in [open questions](open-questions.md).
 
+## Measurable profile
+
+Not yet built (increment I17). A profile is to state measurable quantities: a formant table per vowel, pitch range, register transitions, vibrato rate and extent, breathiness and agility. Engine settings are derived from those quantities by fitting, as `voice/fit.py` derives vowel shapes from formant targets. A persona becomes a preset of a few named perceptual controls, such as tension, breathiness and age. A profile stated this way can later be measured from recordings of a consenting singer (deferred increment I18). Decision: [0020](../decisions/0020-measurable-singer-profiles.md).
+
 ## Personas
 
 Personas (middle-aged, ageing, ghost) stay separate from the profile. Each is an overlay that modifies it, for example adding irregularity for ageing. Whether overlays should face the feasibility test is an [open question](open-questions.md).

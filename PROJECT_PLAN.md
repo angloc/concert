@@ -71,6 +71,82 @@ Acceptance:
 - Every remaining correction is on by default; unadopted switches are gone.
 Read first: [model corrections](docs/knowledge/performance/model-corrections.md), [listening verdicts](docs/knowledge/performance/listening-verdicts.md), [open questions](docs/knowledge/open-questions.md)
 
+## I11: Score reading
+Benefit: a song or arrangement written as ordinary notation, in ABC or MusicXML, is read into one score model with nothing lost.
+Deliver:
+- A `score` module under `src/` that reads ABC through abc2xml, and MusicXML through music21, into one score model in metric time: parts, notes, ties, words and their syllables, dynamics, hairpins, articulations, breath marks, fermatas, harmonics, tempo, key, metre and chord symbols.
+- The project's own chord-symbol parser, which turns chord text into a root, a bass and a set of pitch classes.
+- MusicXML export of a score model.
+- The Danny Boy melody, words, chords and harp part in ABC as a test fixture.
+Docs: none
+Publishes: none
+Acceptance:
+- The Danny Boy fixture reads back with every note's pitch, onset and duration, every syllable on its note, and every dynamic, hairpin, breath mark, fermata, harmonic and chord symbol, both from ABC and after a round trip through MusicXML.
+- The chord parser's tests pass for `add9`, `6/9`, `7b9`, `#11`, `sus2`, `sus4`, `7sus4` and slash chords.
+- music21's ABC reader is not called anywhere.
+- The pull request records the licence, packaging and maintenance state of abc2xml, and the alternatives considered, partitura among them.
+- `make verify` passes.
+Read first: [description model](docs/knowledge/description/model.md), [score format evidence](docs/knowledge/description/score-format.md), [decision 0016](docs/decisions/0016-score-format.md), [decision 0017](docs/decisions/0017-chord-symbols.md)
+
+## I12: Score check
+Benefit: a mistake in a written score, such as a bar of the wrong length or an accidental that carries too far, is reported before anything is rendered.
+Deliver:
+- A check over the score model, run before rendering: bar lengths against the metre; notes outside the key and outside the sounding chord, flagged; syllables per word against the lexicon; each part against the chord line.
+- Warn by default; a strict mode that refuses, as preflight does.
+Docs: none
+Publishes: none
+Acceptance:
+- Test scores with a short bar, an accidental carried through a bar, a word with the wrong number of syllables and a part that clashes with the chord line each produce a report that names the place; strict mode exits with failure on each.
+- The Danny Boy fixture passes, or its warnings are accepted by the owner.
+- `make verify` passes.
+Read first: [description model](docs/knowledge/description/model.md), [score format evidence](docs/knowledge/description/score-format.md), [decision 0004](docs/decisions/0004-shortfall-default.md)
+
+## I13: Tempo map
+Benefit: tempo and rubato can change without moving anything that belongs to the music, because every stage finds its time in one place.
+Deliver:
+- A `tempo` module under `src/`: one map from metric time to seconds, produced by the performance.
+- The voice, band, mix and film timeline take every position through the tempo map. The intro, interlude and outro become bars.
+- The band's own line-and-eighth clock replaced by the tempo map.
+Docs: none
+Publishes: none
+Acceptance:
+- `dist/bide_<version>.html` is byte-identical to the build before the change, at the same `VERSION_TAG`.
+- No time in seconds remains in the score, performance, band or mix code for Danny Boy, apart from the tempo map's own data.
+- `make verify` passes.
+Read first: [description model](docs/knowledge/description/model.md), [architecture](docs/knowledge/architecture.md), [decision 0018](docs/decisions/0018-metric-clock.md)
+
+## I14: Danny Boy as score and performance data
+Benefit: Danny Boy is described by a score and a performance file, so the next song needs data, not code.
+Deliver:
+- `songs/danny-boy/` holds the song as a score (melody, words and chord line) and a performance file: casting, personas over spans, the tempo map's data, and the current interpretation tables (`FEEL`, `LATE`, `CUT`, `VIB`, `ARC`, `COL`) as overrides anchored to score positions.
+- Words take their phones from the lexicon and accent only; the phones and the `CH` table leave the score code.
+- The Danny Boy tables, personas, line-specific code and paths removed from the music, voice and mix code.
+Docs: change README.md
+Publishes: none
+Acceptance:
+- `dist/bide_<version>.html` is byte-identical to the build before the change, at the same `VERSION_TAG`, except where the lexicon and the old score disagree on a phone; the pull request lists each such difference and the owner accepts it by listening.
+- No Danny Boy data remains outside `songs/danny-boy/`.
+- The owner has settled the written-rubato and chord-table questions, and both are removed from open questions.
+- `make verify` passes.
+Read first: [description model](docs/knowledge/description/model.md), [open questions](docs/knowledge/open-questions.md), [decision 0019](docs/decisions/0019-performance-rules.md), [decision 0007](docs/decisions/0007-songs-and-singers-in-folders.md)
+
+## I15: Arrangement as scores and a player model
+Benefit: the band's parts are ordinary instrumental scores, so an arrangement can be written and changed like the song.
+Deliver:
+- The harp, strings, whistle and pipes parts of Danny Boy as scores in `songs/danny-boy/`.
+- A player model for each instrument family that turns a part into events: lay-back, timing spread, roll spread, velocity from dynamics, ring and damping. The player parameters live in the performance file.
+- Instrument instances as data in `instruments/<name>/`, like singers; each instrument family stays code.
+- What the player model does not produce, held as per-note overrides in the performance file; the build reports how many there are for each part.
+- The arrangement code removed from the band.
+Docs: none
+Publishes: none
+Acceptance:
+- `dist/bide_<version>.html` is byte-identical to the build before the change, at the same `VERSION_TAG`.
+- No Danny Boy data remains in the band code.
+- The build reports the number of per-note overrides for each part.
+- `make verify` passes.
+Read first: [description model](docs/knowledge/description/model.md), [score format evidence](docs/knowledge/description/score-format.md), [decision 0019](docs/decisions/0019-performance-rules.md)
+
 ## I6: Feasibility measures
 Benefit: problems a listener would hear are predicted from the plan before anything is rendered.
 Deliver:
@@ -121,10 +197,41 @@ Acceptance:
 - The Danny Boy build passes preflight, or its warnings are accepted by the owner.
 Read first: [performance feasibility](docs/knowledge/performance/feasibility.md), [decision 0004](docs/decisions/0004-shortfall-default.md), [decision 0005](docs/decisions/0005-plan-check-listen.md)
 
+## I16: Performance rules
+Benefit: a performance comes from a few rule weights and the score's own marks, so a new song sounds performed without hand-tuned tables.
+Deliver:
+- A rule layer in the performance: phrase arch, final ritard, punctuation, duration contrast, high-loud and melodic charge, each scaled by a weight.
+- Weights fitted to the Danny Boy overrides. What the rules cannot reproduce stays as overrides, and the build reports how many remain against the number they replace.
+- Mood presets: each mood label maps to rule weights and voice colour.
+- A listening aid that renders a line with one rule at zero, at its weight and exaggerated.
+Docs: none
+Publishes: change `bide_<version>.html`
+Acceptance:
+- The owner judges the rule-driven Danny Boy at least as good as the previous release at 1.0×, and the verdict is recorded in listening verdicts.
+- The build's report shows fewer override values than the tables they replace.
+- The build is reproducible byte for byte.
+- `make verify` passes.
+Read first: [description model](docs/knowledge/description/model.md), [listening verdicts](docs/knowledge/performance/listening-verdicts.md), [decision 0019](docs/decisions/0019-performance-rules.md)
+
+## I17: Singer profiles in measurable quantities
+Benefit: a singer is described by quantities that can be measured from a real voice, and the description stays valid when the engine changes.
+Deliver:
+- Singer profiles state a formant table per vowel, pitch range, register transitions, vibrato rate and extent, breathiness and agility.
+- Engine settings derived from the profile by fitting, extending the vowel-shape fit.
+- Personas as presets of named perceptual controls, such as tension, breathiness and age, over a profile.
+- The score check tests each part's range against its singer or instrument.
+Docs: none
+Publishes: none
+Acceptance:
+- The baritone and female profiles regenerate today's engine settings, and `dist/bide_<version>.html` is byte-identical at the same `VERSION_TAG`.
+- A test score with a note outside the singer's range gets a range report from the score check.
+- `make verify` passes.
+Read first: [singer profile](docs/knowledge/singer-profile.md), [description model](docs/knowledge/description/model.md), [decision 0020](docs/decisions/0020-measurable-singer-profiles.md)
+
 ## I10: Wild Rover
 Benefit: a second song, sung by the baritone in the Irish accent, built by the same song-neutral pipeline.
 Deliver:
-- Wild Rover's score and lexicon in `songs/wild-rover/`.
+- Wild Rover's score, arrangement and performance in `songs/wild-rover/`, the score and arrangement written in ABC by an AI.
 - The baritone's permissions and the style's mandates.
 - Preflight run before the first render.
 Docs: change README.md
@@ -132,8 +239,32 @@ Publishes: none
 Acceptance:
 - Wild Rover builds with no song-specific code outside `songs/wild-rover/`.
 - Preflight passes, or its warnings are accepted, before the first render.
-Read first: [open questions](docs/knowledge/open-questions.md), [decision 0007](docs/decisions/0007-songs-and-singers-in-folders.md), [performance feasibility](docs/knowledge/performance/feasibility.md)
+- The score check passes, or its warnings are accepted, before the first render.
+Read first: [description model](docs/knowledge/description/model.md), [open questions](docs/knowledge/open-questions.md), [decision 0007](docs/decisions/0007-songs-and-singers-in-folders.md), [performance feasibility](docs/knowledge/performance/feasibility.md)
 
 ## Deferred
 
-Nothing is deferred.
+### I18: Singer profiles measured from recordings
+Benefit: a singer profile, and the voice model behind it, can be checked against real singing and calibrated from it.
+Deliver:
+- A measurement pipeline over recordings, using established analysis tools: pitch, formants per vowel, vibrato and source estimates.
+- Profiles measured from recordings.
+- A comparison that measures a render and a recording on the same quantities.
+Docs: none
+Publishes: none
+Acceptance:
+- For one consenting singer: a profile measured from recordings, a render from that profile, and a report of the measured differences between the render and the recordings.
+- The singer's written consent and the rights to the recordings are recorded.
+Read first: [singer profile](docs/knowledge/singer-profile.md), [voice model](docs/knowledge/voice-model.md), [decision 0020](docs/decisions/0020-measurable-singer-profiles.md), [open questions](docs/knowledge/open-questions.md)
+
+### I19: Notation breadth across genres
+Benefit: songs in other genres can be written and read without loss.
+Deliver:
+- Round trips like the score format evidence for drum kit and other unpitched percussion, guitar tablature, microtonal pitch, swing feel and chart-only music.
+- A fix or a decision record for each loss.
+Docs: none
+Publishes: none
+Acceptance:
+- For each case, a fixture reads into the score model and back to MusicXML, and the losses are listed.
+- Each loss is fixed or recorded in a decision.
+Read first: [score format evidence](docs/knowledge/description/score-format.md), [decision 0016](docs/decisions/0016-score-format.md)
