@@ -15,7 +15,8 @@ def reduce_line(L):
     if "cat" not in g:
         g["cat"] = CS.load(); g["acc"] = LX.load_accent(os.path.join(ROOT, "accents", "irish", "accent.json"))
         g["lex"] = LX.load_lexicon(os.path.join(ROOT, "songs", "danny-boy", "lexicon.txt"))
-    sy, log = CS.apply(CS.from_score(L["syl"], g["lex"], g["acc"], L.get("text")), g["cat"], g["acc"], line=L["i"]); REDLOG.extend(log); return sy
+    sy, log = CS.apply(CS.from_score(L["syl"], g["lex"], g["acc"], L.get("text")), g["cat"], g["acc"], line=L["i"],
+                       only=LEGATO["reduce"] if isinstance(LEGATO["reduce"], list) else None); REDLOG.extend(log); return sy
 CR = 200
 VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OH","OY","UH","UW"}
 ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,ZH=.095,CH=.130,JH=.100,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)

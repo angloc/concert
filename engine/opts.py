@@ -5,6 +5,7 @@
   fit:   consonant gestures intrude at most 30% into neighbouring vowels   tail: line-final glide halved, long vowels prompt
   reduce: apply the connected-speech catalogue (engine/connected_speech.json): weak forms, t/d-deletion,
           degemination, place assimilation, yod coalescence, syllabic sonorants, linking glides
+          (true = every rule; a list of rule ids = only those)
   release: phrase ends fade over ~0.3 s with the glottis opening, then an aspiration tail (~0.35 s)"""
 import json, os
 LEGATO = json.loads(os.environ.get("BIDE_LEGATO", "{}") or "{}")
