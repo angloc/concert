@@ -132,12 +132,13 @@ Verdicts so far for Danny Boy:
 - at 1.75×: lines 1, 2 and 7 good; lines 4, 12 and 13 unintelligible;
 - at 1.0× (E1): lines 4, 12 and 13 good;
 - forcing the warm colour at 1.75× (E2) did not help;
+- at 1.75× with the model corrections (G1, G2): lines 4, 12 and 13 intelligible, with or without `keepcons`;
 - the mountainside clipping was fixed by `fit`.
 
 ## Plan
 
 1. **Model corrections.** Done: the five switches above, now on by default. A full Danny Boy build at 1.0× is under review.
-2. **Timing.** Test `keepcons` at 1.75× on lines 1, 4, 12 and 13 (G1 against G2). If it restores intelligibility, make it the default timing.
+2. **Timing.** Tested `keepcons` at 1.75× on lines 1, 4, 12 and 13 (G1 against G2). With the model corrections in place, both were intelligible and differed little, so the earlier failures came from the model faults, not the timing. `keepcons` stays optional until the feasibility measures (step 3) show where it matters.
 3. **Feasibility measures.** Implement the per-syllable test over perf.json: open time, target attainment and consonant floors. Calibrate it against the verdicts above, so that it separates good lines from bad ones.
 4. **Compromise inventory in data.** Merge the connected-speech catalogue and the timing and phonation compromises into one declared inventory with costs. Replace the fixed gates with the feasibility test. Add per-word stacking cost.
 5. **Permission layers.** Add forbid, permit and mandate to the accent, singer and performance files, resolved with the precedence above. Add the emphasis mark to the song interpretation.
