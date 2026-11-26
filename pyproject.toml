@@ -11,6 +11,15 @@ dependencies = [
 ]
 
 [project.scripts]
+concert-band = "concert.band.render:main"
+concert-fit = "concert.voice.fit:main"
+concert-flac = "concert.mix.flac:main"
+concert-mix = "concert.mix.mix:main"
+concert-page = "concert.page.build:main"
+concert-perform = "concert.performance.perform:main"
+concert-preflight = "concert.review.preflight:main"
+concert-sing = "concert.voice.sing:main"
+concert-timeline = "concert.page.timeline:main"
 doccheck = "repochecks.doccheck:main"
 tagcheck = "repochecks.tagcheck:main"
 
@@ -35,15 +44,7 @@ path = "src/repochecks/tagcheck/version.py"
 expression = "PACKAGE_VERSION"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/repochecks"]
-
-[tool.ruff]
-# Existing code is exempt until increment I3 (docs/decisions/0015-transitional-compliance.md).
-extend-exclude = [
-    "band", "engine", "film", "mix", "music", "tools", "voice",
-    "tests/test_affricates.py", "tests/test_connected_speech.py",
-    "tests/test_lexicon_danny_boy.py", "tests/test_singer_profiles.py",
-]
+packages = ["src/concert", "src/repochecks"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

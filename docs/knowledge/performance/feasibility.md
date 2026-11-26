@@ -14,13 +14,13 @@ Register is the ideal a performance aims at, not a setting. A singer at speed do
 
 The accent, the singer and the performance can each restrict which compromises are allowed, or require some. A demand that cannot be met with the permitted compromises is reported, not quietly mangled.
 
-This replaces the fixed gates in `engine/connected_speech.json` (for example `max_syl_d: .35`), which are a crude stand-in for "the ideal is under pressure here".
+This replaces the fixed gates in `src/concert/diction/connected_speech.json` (for example `max_syl_d: .35`), which are a crude stand-in for "the ideal is under pressure here".
 
 ## Terms
 
 - **Ideal.** Each syllable in its careful form: citation phones from the lexicon and accent, full consonant durations, vowel targets reached, and the line's voice colour.
 - **Demand.** What the score and the interpretation ask of the syllable: note length, pitch, loudness and colour.
-- **Capacity.** What the singer can do: the minimum duration of each gesture (set by the articulator time constants in `voice/gest.py`), the singer's range, and how far phonation can move at a given pitch and loudness. It is to come from the [singer profile](../singer-profile.md); capacity is not yet per singer.
+- **Capacity.** What the singer can do: the minimum duration of each gesture (set by the articulator time constants in `src/concert/voice/gest.py`), the singer's range, and how far phonation can move at a given pitch and loudness. It is to come from the [singer profile](../singer-profile.md); capacity is not yet per singer.
 - **Feasible.** A syllable is feasible when its realisation fits within the demand, given the singer's capacity. The test is computed from the plan (`build/perf.json`) before rendering. Candidate measures already exist as diagnostics: open time per nucleus; how far each vowel and consonant target is reached; consonant duration floors.
 - **Compromise.** A transformation that moves a syllable away from the ideal to make it feasible. Each compromise has a cost. The inventory is in [compromise inventory](compromise-inventory.md).
 
@@ -32,7 +32,7 @@ Feasibility is judged per syllable; stacking cost is counted per word ([decision
 
 Three kinds, treated differently ([decision 0002](../../decisions/0002-time-borrowing.md)):
 
-1. **Part of the ideal.** Onset consonants are sung before the beat so that the vowel lands on it. `music/perform.py` already places onsets before the syllable's time. Not a compromise; no cost.
+1. **Part of the ideal.** Onset consonants are sung before the beat so that the vowel lands on it. `src/concert/performance/perform.py` already places onsets before the syllable's time. Not a compromise; no cost.
 2. **Compromise.** A neighbouring vowel is shortened to make room for a consonant or cluster, as the `fit` clamp does. The rhythm the listener hears is unchanged. Cheap; the solver may choose it.
 3. **Performance decision.** The beat itself moves: holding back, rushing, cutting a note short. This changes the rhythm, which is interpretation, so it is never applied automatically. A shortfall warning may suggest it.
 
@@ -73,6 +73,6 @@ Feasibility is only meaningful if the model renders the ideal correctly; see [mo
 
 ## Relation to current code
 
-- `engine/connected.py` applies catalogue rules in order with a log. Each rule's gate becomes a call to the feasibility test, and the log gains the cost and the reason for each compromise.
+- `src/concert/diction/connected.py` applies catalogue rules in order with a log. Each rule's gate becomes a call to the feasibility test, and the log gains the cost and the reason for each compromise.
 - The `BIDE_LEGATO` switches are experiments. Those that prove themselves become compromises in the inventory or model defaults, and stop being global switches.
-- The plan-check half of preflight is the feasibility test run over the whole song. The existing `tools/preflight.py` reviews a finished render, not a plan.
+- The plan-check half of preflight is the feasibility test run over the whole song. The existing `concert-preflight` reviews a finished render, not a plan.

@@ -10,14 +10,14 @@ The voice is a simulated vocal tract: a tube of air from the glottis through the
 
 ## From performance to sound
 
-- [voice/gest.py](../../voice/gest.py) turns phoneme segments into overlapping movements of the articulators, each with its own timing.
-- [voice/tract.py](../../voice/tract.py) turns articulator positions into an area function: how wide the tract is at every point from the glottis to the lips. It also has a frequency-domain solver that predicts formants.
-- [voice/tube.py](../../voice/tube.py) runs sound through that tube in the time domain, with losses, a nose, sinuses and radiation at the lips. The per-sample loop is generated as flat Python source.
-- [voice/glottis.py](../../voice/glottis.py) makes the glottal flow pulses (Liljencrants-Fant, shape set by one parameter, Rd).
-- [voice/engine.py](../../voice/engine.py) renders one sung line: gestures, area function, aerodynamics, source and tube, with jitter, shimmer and breath that pulses with the source.
-- [voice/fit.py](../../voice/fit.py) found the vowel shapes in `voice/shapes.json` by searching for tongue and lip positions whose resonances match each vowel's target formants for a 16.3 cm tract.
-- [voice/tuning.py](../../voice/tuning.py) opens the jaw on high notes so that F1 stays above the pitch; this works only for the vowels whose F1 the jaw raises (AE, EH, ER, EY, IH, IY).
-- [voice/persona.py](../../voice/persona.py) sets per-line voice settings for the Danny Boy personas (middle-aged, ageing, ghost) on top of the female singer profile, raised to the song's key.
+- [src/concert/voice/gest.py](../../src/concert/voice/gest.py) turns phoneme segments into overlapping movements of the articulators, each with its own timing.
+- [src/concert/voice/tract.py](../../src/concert/voice/tract.py) turns articulator positions into an area function: how wide the tract is at every point from the glottis to the lips. It also has a frequency-domain solver that predicts formants.
+- [src/concert/voice/tube.py](../../src/concert/voice/tube.py) runs sound through that tube in the time domain, with losses, a nose, sinuses and radiation at the lips. The per-sample loop is generated as flat Python source.
+- [src/concert/voice/glottis.py](../../src/concert/voice/glottis.py) makes the glottal flow pulses (Liljencrants-Fant, shape set by one parameter, Rd).
+- [src/concert/voice/engine.py](../../src/concert/voice/engine.py) renders one sung line: gestures, area function, aerodynamics, source and tube, with jitter, shimmer and breath that pulses with the source.
+- [src/concert/voice/fit.py](../../src/concert/voice/fit.py) found the vowel shapes in `src/concert/voice/shapes.json` by searching for tongue and lip positions whose resonances match each vowel's target formants for a 16.3 cm tract.
+- [src/concert/voice/tuning.py](../../src/concert/voice/tuning.py) opens the jaw on high notes so that F1 stays above the pitch; this works only for the vowels whose F1 the jaw raises (AE, EH, ER, EY, IH, IY).
+- [src/concert/voice/persona.py](../../src/concert/voice/persona.py) sets per-line voice settings for the Danny Boy personas (middle-aged, ageing, ghost) on top of the female singer profile, raised to the song's key.
 
 ## Intelligibility evidence
 

@@ -15,6 +15,9 @@ bide renders a song from nothing: a physical model of a singing voice, modelled 
 - [Decision 0015](docs/decisions/0015-transitional-compliance.md): existing code is exempt from listed rules until named increments land.
 
 ## Commands
-- Render one line of the raw voice: `uv run python voice/sing.py --lines 6 --out build/line6.wav`. Add `--persona` for the Danny Boy personas.
-- Experiment switches: set `BIDE_LEGATO` to a JSON object, for example `BIDE_LEGATO='{"keepcons": true}'`. See `engine/opts.py`.
+- Render one line of the raw voice: `uv run concert-sing --lines 6 --out build/line6.wav`. Add `--persona` for the Danny Boy personas.
+- Experiment switches: set `BIDE_LEGATO` to a JSON object, for example `BIDE_LEGATO='{"keepcons": true}'`. See `src/concert/diction/opts.py`.
+- Stage commands are console scripts: `concert-perform`, `concert-timeline`, `concert-sing`, `concert-band`, `concert-mix`, `concert-flac`, `concert-page`. Run each through `uv run`. `make package` runs them in order.
+- Refit vowel shapes: `uv run concert-fit [name ...]`.
+- Review a render: `uv run concert-preflight build`.
 - Transpose for a test render: `BIDE_SHIFT=<semitones>` overrides `key.json`.

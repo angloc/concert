@@ -39,13 +39,13 @@ verify:
 package:
 	rm -rf $(DIST)
 	mkdir -p $(DIST) $(BUILD)
-	$(UV) python music/perform.py
-	$(UV) python tools/mktimeline.py
-	$(UV) python voice/sing.py --all --persona --out $(BUILD)/voice.wav
-	$(UV) python band/render.py
-	$(UV) python mix/mix.py $(BUILD)/voice.wav -o $(BUILD)/mix.wav
-	$(UV) python mix/flac.py $(BUILD)/mix.wav $(BUILD)/song.flac --requant --max-bytes 9000000
-	$(UV) python tools/build.py --out $(BUILD)/bide.html
+	$(UV) concert-perform
+	$(UV) concert-timeline
+	$(UV) concert-sing --all --persona --out $(BUILD)/voice.wav
+	$(UV) concert-band
+	$(UV) concert-mix $(BUILD)/voice.wav -o $(BUILD)/mix.wav
+	$(UV) concert-flac $(BUILD)/mix.wav $(BUILD)/song.flac --requant --max-bytes 9000000
+	$(UV) concert-page --out $(BUILD)/bide.html
 	cp $(BUILD)/bide.html $(DIST)/bide_$(VERSION).html
 	@if [ -n "$$(ls -A $(DIST))" ]; then (cd $(DIST) && find . -type f ! -name SHA256SUMS -printf '%P\n' | LC_ALL=C sort | xargs -d '\n' sha256sum -- > SHA256SUMS); fi
 

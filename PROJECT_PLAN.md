@@ -31,20 +31,6 @@ Acceptance:
 - A non-Baseline 2025 feature in the page fails `make verify`.
 Read first: [platforms](docs/knowledge/platforms.md), [decision 0013](docs/decisions/0013-browser-target.md), [decision 0014](docs/decisions/0014-version-on-page.md)
 
-## I3: Python layout and formatting
-Benefit: developers and agents find each module under `src/` in one style, with no change to what listeners hear or see.
-Deliver:
-- The Python modules moved to `src/<package>/`, one subpackage per module, named for the decision each hides; thin entry points as console scripts; no `sys.path` manipulation.
-- `ruff format` and `ruff check` clean; docstrings on public interfaces.
-- Comments that narrate history rewritten as current purpose.
-- This increment's exemption removed from decision 0015.
-Docs: change README.md
-Publishes: none
-Acceptance:
-- `dist/bide_<version>.html` is byte-identical to the build before the move, at the same `VERSION_TAG`.
-- `make verify` passes with ruff applied to all Python.
-Read first: [architecture](docs/knowledge/architecture.md), [decision 0015](docs/decisions/0015-transitional-compliance.md)
-
 ## I4: Test coverage of the Python code
 Benefit: a regression in the voice, band, mix or page assembly is caught by a test before anyone has to listen for it.
 Deliver:
@@ -168,7 +154,7 @@ Deliver:
 Docs: none
 Publishes: change `bide_<version>.html`
 Acceptance:
-- No fixed gate remains in `engine/connected_speech.json`.
+- No fixed gate remains in `src/concert/diction/connected_speech.json`.
 - Every compromise applied in a build is logged with its cost and reason.
 - The build is reproducible byte for byte.
 Read first: [compromise inventory](docs/knowledge/performance/compromise-inventory.md), [performance feasibility](docs/knowledge/performance/feasibility.md), [decision 0001](docs/decisions/0001-feasibility-units.md), [decision 0002](docs/decisions/0002-time-borrowing.md)

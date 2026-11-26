@@ -6,7 +6,7 @@ description: The compromises a singer may make under time or pitch pressure, whi
 
 # Compromise inventory
 
-The declared inventory, with costs, is not yet built (increment I7). Today the compromises exist as connected-speech rules in `engine/connected_speech.json` and as `BIDE_LEGATO` switches.
+The declared inventory, with costs, is not yet built (increment I7). Today the compromises exist as connected-speech rules in `src/concert/diction/connected_speech.json` and as `BIDE_LEGATO` switches.
 
 ## Segmental compromises
 
@@ -40,7 +40,7 @@ Three habits from the line 4 work. Each is general as a mechanism but not univer
 | `final-stop-hold` | a line-final stop is held (about 110 ms at 1.75×), the time taken from the vowel before it | emphasis, paid for by borrowing of the second kind | line-final stop after a long vowel | permitted; the performance sets the amount | `finallen` (2.2) |
 | `td-prevocalic` | a word-final D or T after N or L drops before a vowel-initial word ("an' I") | elision under time pressure | note shorter than 0.35 s | permitted; forbidden under the emphasis mark | `reduce: ["td-prevocalic"]` |
 
-`td-prevocalic` is in `engine/connected_speech.json`. The other two are switches in `voice/gest.py` and `music/perform.py` until the inventory gives them declared homes. The gate values (0.35 s, factor 2.2, the 0.4 s vowel floor) are first judgements from one line, to be calibrated with the rest.
+`td-prevocalic` is in `src/concert/diction/connected_speech.json`. The other two are switches in `src/concert/voice/gest.py` and `src/concert/performance/perform.py` until the inventory gives them declared homes. The gate values (0.35 s, factor 2.2, the 0.4 s vowel floor) are first judgements from one line, to be calibrated with the rest.
 
 ## Draft declarations
 
