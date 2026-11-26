@@ -1,6 +1,6 @@
 """singer.py - load a singer profile (singers/<name>/profile.json). Song-neutral.
-A profile is who is singing: tract scale and source settings now; range, registers and breath later (see the
-singer-profile design note). Personas in a song are overlays on a profile."""
+A profile is who is singing: tract scale and source settings now; range, registers and breath later (see
+docs/knowledge/singer-profile.md). Personas in a song are overlays on a profile."""
 import json, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

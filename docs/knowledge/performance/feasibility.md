@@ -20,7 +20,7 @@ This replaces the fixed gates in `engine/connected_speech.json` (for example `ma
 
 - **Ideal.** Each syllable in its careful form: citation phones from the lexicon and accent, full consonant durations, vowel targets reached, and the line's voice colour.
 - **Demand.** What the score and the interpretation ask of the syllable: note length, pitch, loudness and colour.
-- **Capacity.** What the singer can do: the minimum duration of each gesture (set by the articulator time constants in `voice/gest.py`), the singer's range, and how far phonation can move at a given pitch and loudness.
+- **Capacity.** What the singer can do: the minimum duration of each gesture (set by the articulator time constants in `voice/gest.py`), the singer's range, and how far phonation can move at a given pitch and loudness. It comes from the [singer profile](../singer-profile.md).
 - **Feasible.** A syllable is feasible when its realisation fits within the demand, given the singer's capacity. The test is computed from the plan (`build/perf.json`) before rendering. Candidate measures already exist as diagnostics: open time per nucleus; how far each vowel and consonant target is reached; consonant duration floors.
 - **Compromise.** A transformation that moves a syllable away from the ideal to make it feasible. Each compromise has a cost. The inventory is in [compromise inventory](compromise-inventory.md).
 

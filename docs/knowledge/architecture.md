@@ -68,7 +68,7 @@ The tune, syllables and moods of Danny Boy still live in `music/score.py`, and t
 
 ### Singers
 
-Hides who is singing: tract scale and source settings for each singer, in `singers/<name>/profile.json`. A persona in a song is an overlay on a profile. Range, registers and breath are designed but not yet built. Decision: [0007](../decisions/0007-songs-and-singers-in-folders.md). Code: [singers/](../../singers/), loader [engine/singer.py](../../engine/singer.py).
+Hides who is singing: tract scale and source settings for each singer, in `singers/<name>/profile.json`. A persona in a song is an overlay on a profile. Range, registers, breath and per-singer permissions are designed but not yet built; see [singer profile](singer-profile.md). Decision: [0007](../decisions/0007-songs-and-singers-in-folders.md). Code: [singers/](../../singers/), loader [engine/singer.py](../../engine/singer.py).
 
 ### Accents
 
