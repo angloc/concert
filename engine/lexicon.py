@@ -1,7 +1,8 @@
 """lexicon.py - words to sung syllables, song- and accent-neutral.
 
 A song's lexicon writes each word as lexical-set vowels (Wells: FLEECE, GOAT, NORTH ...) and ARPAbet consonants.
-`(r)` marks an R that only rhotic accents pronounce. An accent (accents/<name>/accent.json) maps lexical sets to
+Every lexical set carries a stress digit (CMUdict style): 1 primary, 2 secondary, 0 unstressed, e.g.
+`calling  K THOUGHT1 L KIT0 NG`. `(r)` marks an R that only rhotic accents pronounce. An accent (accents/<name>/accent.json) maps lexical sets to
 the phones the voice engine knows, and may rewrite consonants. Syllables for singing are found by maximal onset:
 each vowel takes as many preceding consonants as form a legal English onset, the rest stay in the coda before it.
 Standard library only."""
@@ -32,10 +33,26 @@ def load_lexicon(path):
     return lex
 
 
+def split_stress(tok, accent):
+    """'THOUGHT1' -> ('THOUGHT', 1) for a lexical set of this accent; (tok, None) for anything else"""
+    if tok[-1:].isdigit() and tok[:-1] in accent["vowels"]:
+        d = int(tok[-1])
+        if d not in (0, 1, 2): raise ValueError("stress must be 0, 1 or 2: %r" % tok)
+        return tok[:-1], d
+    if tok in accent["vowels"]: raise ValueError("lexical set without a stress digit: %r" % tok)
+    return tok, None
+
+
+def stresses(word_ph, accent):
+    """one stress digit per syllable (per lexical set), in order"""
+    return [d for d in (split_stress(t, accent)[1] for t in word_ph) if d is not None]
+
+
 def phones(word_ph, accent):
     """lexicon transcription -> ARPAbet phones for this accent"""
     out = []
     for p in word_ph:
+        p, _ = split_stress(p, accent)
         if p == "(r)":
             if accent.get("rhotic"): out.append(accent.get("r_optional", "R"))
         elif p in accent["vowels"]: out += accent["vowels"][p]
@@ -66,3 +83,10 @@ def sung(word, lex, accent):
     key = word.lower()
     if key not in lex: raise KeyError("word not in lexicon: %r" % word)
     return syllabify(phones(lex[key], accent))
+
+
+def sung_stress(word, lex, accent):
+    """word -> [(syllable phones, stress digit)]"""
+    syl = sung(word, lex, accent); st = stresses(lex[word.lower()], accent)
+    if len(st) != len(syl): raise ValueError("%r: %d syllables but %d stress digits" % (word, len(syl), len(st)))
+    return list(zip(syl, st))

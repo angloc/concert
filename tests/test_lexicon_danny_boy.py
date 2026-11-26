@@ -32,6 +32,16 @@ class DannyBoyRoundTrip(unittest.TestCase):
             if got != syl: bad.append("L%d %s: score %s, lexicon %s" % (li + 1, w, syl, got))
         self.assertEqual(bad, [], "\n" + "\n".join(bad))
 
+    def test_stress(self):
+        """every word: one stress digit per syllable; content words of two or more syllables have exactly one primary"""
+        lex = LX.load_lexicon(os.path.join(ROOT, "songs", "danny-boy", "lexicon.txt"))
+        acc = LX.load_accent(os.path.join(ROOT, "accents", "irish", "accent.json"))
+        bad = []
+        for w in lex:
+            st = [d for _, d in LX.sung_stress(w, lex, acc)]
+            if len(st) > 1 and st.count(1) != 1: bad.append("%s %s" % (w, st))
+        self.assertEqual(bad, [])
+
     def test_no_unused_entries(self):
         lex = LX.load_lexicon(os.path.join(ROOT, "songs", "danny-boy", "lexicon.txt"))
         used = {w.lower() for _, w, _ in score_words()}

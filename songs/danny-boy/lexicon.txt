@@ -1,84 +1,86 @@
 # Danny Boy lexicon: one word per line, phones in lexical-set notation (Wells) plus ARPAbet consonants.
 # (r) = an R that only rhotic accents pronounce. Song-specific forms (weak/strong choice, contractions) live here.
-oh       GOAT
-danny    D TRAP N happY
-boy      B CHOICE
-the      DH commA
-pipes    P PRICE P S
-are      START
-calling  K THOUGHT L KIT NG
-from     F R commA M
-glen     G L DRESS N
-to       T GOOSE
-and      TRAP N D
-down     D MOUTH N
-mountain M MOUTH N T KIT N
-side     S PRICE D
-summer's S STRUT M lettER Z
-gone     G CLOTH N
-all      THOUGHT L
-roses    R GOAT Z KIT Z
-falling  F THOUGHT L KIT NG
-it's     KIT T S
-you      Y GOOSE
-must     M STRUT S T
-go       G GOAT
-i        PRICE
-bide     B PRICE D
-but      B STRUT T
-come     K STRUT M
-ye       Y FLEECE
-back     B TRAP K
-when     W DRESS N
-in       KIT N
-meadow   M DRESS D GOAT
-or       NORTH
-valley's V TRAP L happY Z
-hushed   HH STRUT SH T
-white    W PRICE T
-with     W KIT DH
-snow     S N GOAT
-i'll     PRICE L
-be       B FLEECE
-here     HH NEAR
-sunshine S STRUT N SH PRICE N
-shadow   SH TRAP D GOAT
-love     L STRUT V
-so       S GOAT
-flow'rs  F L MOUTH (r)
-dying    D PRICE KIT NG
-if       KIT F
-am       TRAP M
-dead     D DRESS D
-as       TRAP Z
-well     W DRESS L
-may      M FACE
-ye'll    Y FLEECE L
-find     F PRICE N D
-place    P L FACE S
-where    W SQUARE
-lying    L PRICE KIT NG
-kneel    N FLEECE L
-say      S FACE
-an       TRAP N
-ave      PALM V FACE
-there    DH SQUARE
-for      F NORTH
-me       M FLEECE
-shall    SH TRAP L
-hear     HH NEAR
-though   DH GOAT
-soft     S CLOTH F T
-tread    T R DRESS D
-above    commA B STRUT V
-my       M PRICE
-grave    G R FACE V
-will     W KIT L
-warmer   W NORTH M lettER
-sweeter  S W FLEECE T lettER
-bend     B DRESS N D
-tell     T DRESS L
-that     DH TRAP T
-sleep    S L FLEECE P
-peace    P FLEECE S
-until    STRUT N T KIT L
+# Each vowel (lexical set) carries a stress digit: 1 primary, 2 secondary, 0 unstressed. Monosyllabic function
+# words are 0 (unstressed by default); how long the note is still decides how they are sung.
+oh       GOAT1
+danny    D TRAP1 N happY0
+boy      B CHOICE1
+the      DH commA0
+pipes    P PRICE1 P S
+are      START0
+calling  K THOUGHT1 L KIT0 NG
+from     F R commA0 M
+glen     G L DRESS1 N
+to       T GOOSE0
+and      TRAP0 N D
+down     D MOUTH1 N
+mountain M MOUTH1 N T KIT0 N
+side     S PRICE1 D
+summer's S STRUT1 M lettER0 Z
+gone     G CLOTH1 N
+all      THOUGHT1 L
+roses    R GOAT1 Z KIT0 Z
+falling  F THOUGHT1 L KIT0 NG
+it's     KIT0 T S
+you      Y GOOSE0
+must     M STRUT0 S T
+go       G GOAT1
+i        PRICE0
+bide     B PRICE1 D
+but      B STRUT0 T
+come     K STRUT1 M
+ye       Y FLEECE0
+back     B TRAP1 K
+when     W DRESS0 N
+in       KIT0 N
+meadow   M DRESS1 D GOAT0
+or       NORTH0
+valley's V TRAP1 L happY0 Z
+hushed   HH STRUT1 SH T
+white    W PRICE1 T
+with     W KIT0 DH
+snow     S N GOAT1
+i'll     PRICE0 L
+be       B FLEECE0
+here     HH NEAR1
+sunshine S STRUT1 N SH PRICE2 N
+shadow   SH TRAP1 D GOAT0
+love     L STRUT1 V
+so       S GOAT1
+flow'rs  F L MOUTH1 (r)
+dying    D PRICE1 KIT0 NG
+if       KIT0 F
+am       TRAP0 M
+dead     D DRESS1 D
+as       TRAP0 Z
+well     W DRESS1 L
+may      M FACE0
+ye'll    Y FLEECE0 L
+find     F PRICE1 N D
+place    P L FACE1 S
+where    W SQUARE0
+lying    L PRICE1 KIT0 NG
+kneel    N FLEECE1 L
+say      S FACE1
+an       TRAP0 N
+ave      PALM1 V FACE0
+there    DH SQUARE1
+for      F NORTH0
+me       M FLEECE0
+shall    SH TRAP0 L
+hear     HH NEAR1
+though   DH GOAT0
+soft     S CLOTH1 F T
+tread    T R DRESS1 D
+above    commA0 B STRUT1 V
+my       M PRICE0
+grave    G R FACE1 V
+will     W KIT0 L
+warmer   W NORTH1 M lettER0
+sweeter  S W FLEECE1 T lettER0
+bend     B DRESS1 N D
+tell     T DRESS1 L
+that     DH TRAP0 T
+sleep    S L FLEECE1 P
+peace    P FLEECE1 S
+until    STRUT0 N T KIT1 L
