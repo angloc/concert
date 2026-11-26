@@ -10,6 +10,7 @@ PI4 = math.pi * .25
 CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45, K=1.0, jhi=1.3)
 
 import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), "engine")); from opts import LEGATO
+LIPCON = bool(LEGATO.get("lipcon"))
 REL = bool(LEGATO.get("release"))
 
 def smooth_noise(n, dt, fc, rnd, amp):
@@ -153,8 +154,8 @@ def render_line(perf, li, cfg=None, debug=None):
             for n in range(NSEC - 4, NSEC):
                 s = (n + .5) * dx - LH; e = s - (Lt - .45); a = abs(e) - .32
                 lim = cl + (a * 2.2 if a > 0 else 0.0)
-                d = D[n]; df = d - lim; d = .5 * (d + lim - math.sqrt(df * df + .012)); D[n] = d
-                if d < amin: amin = d
+                d0 = d = D[n]; df = d - lim; d = .5 * (d + lim - math.sqrt(df * df + .012)); D[n] = d
+                if d < amin and (not LIPCON or lim < d0): amin = d   # lipcon: only where the lips, not the tongue, bind
             conA.append((max(.0, amin), NSEC * dx - .3))
         else: conA.append((9.0, NSEC * dx - .3))
         A = [PI4 * d * d if d > .012 else 1.1e-4 for d in D]
