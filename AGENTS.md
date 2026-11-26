@@ -1,0 +1,20 @@
+# Agent rules
+
+Read POLICY.md.
+
+## Project
+bide renders a song from nothing: a physical model of a singing voice, modelled instruments, a mix and a hand-drawn film, assembled into one HTML page that plays offline. The current song is Danny Boy, sung by a female singer whose voice ages through the song. A second song, Wild Rover, is planned.
+
+## Mandates
+- **Deterministic builds.** Seed every random choice. The same source and `VERSION_TAG` must build a byte-identical page. Rationale: [architecture](docs/knowledge/architecture.md).
+- **General model corrections.** A correction to the voice model's physics or timing applies to every song and every voice. Never add a per-song or per-singer exception to the model. Rationale: [model corrections](docs/knowledge/performance/model-corrections.md).
+- **Song data in song folders.** Put song-specific data (words, tune, interpretation, personas) only in `songs/<name>/`. Keep the engine, voice, band and mix song-neutral. Rationale: [decision 0007](docs/decisions/0007-songs-and-singers-in-folders.md).
+
+## Exceptions
+- [Decision 0012](docs/decisions/0012-film-exception.md): `film/` is outside the JavaScript profile.
+- [Decision 0015](docs/decisions/0015-transitional-compliance.md): existing code is exempt from listed rules until named increments land.
+
+## Commands
+- Render one line of the raw voice: `uv run python voice/sing.py --lines 6 --out build/line6.wav`. Add `--persona` for the Danny Boy personas.
+- Experiment switches: set `BIDE_LEGATO` to a JSON object, for example `BIDE_LEGATO='{"keepcons": true}'`. See `engine/opts.py`.
+- Transpose for a test render: `BIDE_SHIFT=<semitones>` overrides `key.json`.

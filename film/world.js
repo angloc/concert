@@ -1,4 +1,4 @@
-// world.js - land, weather, houses, growing things and wool, drawn on the painter API. See WORLD.md.
+// world.js - land, weather, houses, growing things and wool, drawn on the painter API. See docs/knowledge/film/world.md.
 window.BIDE = window.BIDE || {};
 (function () {
   'use strict';

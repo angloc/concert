@@ -1,6 +1,27 @@
+# Build output
+dist/
 build/*
 !build/.gitkeep
-__pycache__/
+
+# Ephemeral work
+wip/
+
+# Secrets
+.env
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
 .DS_Store
+Thumbs.db
+
+# Python environment, caches and coverage data
+.venv/
+__pycache__/
+.coverage
+.coverage.*
+
+# Reports the build writes beside its sources
 mix/report*.json
 band/events.json

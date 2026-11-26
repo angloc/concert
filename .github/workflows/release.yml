@@ -1,0 +1,99 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version-file: .python-version
+      - run: make install
+      - name: Check the tag
+        run: uv run --locked tagcheck "$TAG"
+      - name: Check that no release exists for the tag
+        run: |
+          if output="$(gh release view "$TAG" 2>&1)"; then
+            echo "A release already exists for $TAG."
+            exit 1
+          elif ! grep -q 'release not found' <<<"$output"; then
+            echo "$output"
+            exit 1
+          fi
+      - name: Check the tagged commit
+        run: |
+          if git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"; then
+            exit 0
+          fi
+          case "$TAG" in
+            *-rc.*) ;;
+            *) echo "A final tag must be on a commit of $DEFAULT_BRANCH."; exit 1 ;;
+          esac
+          open_prs="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+            --jq "[.[] | select(.state == \"open\" and .head.sha == \"$GITHUB_SHA\")] | length")"
+          ci_passed="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/check-runs" \
+            --jq '[.check_runs[] | select(.name == "ci" and .conclusion == "success")] | length')"
+          if [ "$open_prs" -lt 1 ] || [ "$ci_passed" -lt 1 ]; then
+            echo "A release candidate off $DEFAULT_BRANCH must tag the head of an open pull request whose ci check succeeded."
+            exit 1
+          fi
+
+  build:
+    needs: [validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERSION_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version-file: .python-version
+      - run: make install
+      - run: make verify
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish-github-release:
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*
+      - name: Create the release
+        run: |
+          flags=()
+          case "$TAG" in *-rc.*) flags+=(--prerelease) ;; esac
+          gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes "${flags[@]}"
