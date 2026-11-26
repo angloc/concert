@@ -152,6 +152,7 @@ class Score:
                 if LEGATO.get("artic"):
                     dv = 2.5
                     if LEGATO.get("tail"): dv = 2.5 + 1.8 * min(1, max(0, (g["t1"] - g["t0"] - .15) / .25))
+                    if v2 is not None and LEGATO.get("diphhold"): dv = max(dv, 4.3)   # a diphthong must reach its first element before gliding
                     T[k].to(ts, te, v1[k], dv)
                 else: T[k].to(ts, te, v1[k])
             if v2 is None:
@@ -171,6 +172,7 @@ class Score:
                 te = g["t1"] + (.02 if not last else -.05)
                 if LEGATO.get("diphhold"):           # reach the second element and hold it ~80 ms before what follows
                     w = min(.40, max(.12, d * .52)); te = g["t1"] - min(.08, .25 * d)
+                    w = min(w, te - (g["t0"] + .40 * d))   # ...but the first element keeps at least 40% of the note
                 for k in BODY: T[k].to(te - w * (1.0 if k not in ("LP",) else 1.15), te, v2[k])
         if LEGATO.get("release"):                 # phrase end: the glottis opens as the breath is let go
             te = S[-1]["t1"]
