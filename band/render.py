@@ -5,6 +5,11 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE);
 from dsp import *
 import arrange as A, harp, bowed, whistle, other
 N = int(A.TOTAL * SR)
+# the whole piece is raised SHIFT semitones from the original key (key.json). Decisions that depend on the key (which notes rub, which are bass)
+# are taken in the original key; only the sound is made at the new pitch.
+SHIFT = int(os.environ.get("BIDE_SHIFT", json.load(open(os.path.join(ROOT, "key.json")))["shift"]))
+harp.SYM = [m + SHIFT for m in harp.SYM]
+DRONE_NOTES = tuple((m + SHIFT, lev) for m, lev in ((51, 1.0), (51.035, .8), (39, .55), (46.02, .22)))
 BUILD = os.path.join(ROOT, "build")
 # relative stem levels (linear)
 LEVEL = dict(harp=.30, strings=.30, whistle=.11, other=.10)
@@ -42,7 +47,7 @@ def harp_notes():
     return out
 def _harp_note(a):
     t, m, v, d, kind, seed = a
-    pre, x = harp.pluck(m, v, d, seed, kind)
+    pre, x = harp.pluck(m + SHIFT, v, d, seed, kind)
     return t, m, pre, f32(x)
 def _harp_body(a):
     i, force, weight = a
@@ -66,6 +71,7 @@ def do_harp(pool):
 SEAT = dict(B=.42, T=.16, A=-.20, S=-.46)
 def _bow(a):
     pi, pl, ph = a
+    ph = dict(ph, notes=[dict(n, m=n["m"] + SHIFT) for n in ph["notes"]])
     seed = 1000 + 37 * pi + 7 * pl; solo = ph["players"] == 1
     t0 = ph["notes"][0]["t"] - .30; t1 = max(n["t"] + n["d"] for n in ph["notes"]) + .25
     ctl = bowed.controls(ph["notes"], t0, t1, seed, ph["kind"], 1.2 if not solo else .75)
@@ -89,7 +95,7 @@ def do_strings(pool):
 
 # ------------------------------------------------------------------ whistle / other
 def _whis(a):
-    i, ph = a; t0 = ph[0]["t"] - .25; t1 = ph[-1]["t"] + ph[-1]["d"] + .2
+    i, ph = a; ph = [dict(n, m=n["m"] + SHIFT) for n in ph]; t0 = ph[0]["t"] - .25; t1 = ph[-1]["t"] + ph[-1]["d"] + .2
     c = whistle.controls(ph, t0, t1, 70 + i); y = whistle.play(c, 70 + i); n = 800
     for k in range(n): y[k] *= k / n; y[-1-k] *= k / n
     return t0, f32(y)
@@ -99,7 +105,7 @@ def do_whistle(pool):
         add(L, y, int(t0 * SR), math.cos(.56 * math.pi / 2 * 1.0)); add(R, y, int(t0 * SR) + 4, math.sin(.56 * math.pi / 2))
     return L, R
 def _drone(d):
-    sh = d["shape"]; return d["t0"], f32(other.drone(d["t1"] - d["t0"], d["seed"], env=lambda t: interp(sh, t) * d["peak"]))
+    sh = d["shape"]; return d["t0"], f32(other.drone(d["t1"] - d["t0"], d["seed"], notes=DRONE_NOTES, env=lambda t: interp(sh, t) * d["peak"]))
 def do_other(pool):
     L = zeros(N); R = zeros(N)
     for t0, y in pool.imap(_drone, A.drones):

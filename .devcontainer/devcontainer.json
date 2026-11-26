@@ -1,0 +1,4 @@
+{
+  "name": "concert",
+  "build": { "dockerfile": "Dockerfile", "context": ".." }
+}

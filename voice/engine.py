@@ -7,7 +7,11 @@ from tract import NSEC, L0, C0, RHO, RC, GS, S_MIN, T_D0, T_W, T_JW, T_TR, T_EP,
 from operator import mul
 SR = 44100
 PI4 = math.pi * .25
-CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45)
+CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45, K=1.0, jhi=1.3)
+
+import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), "engine")); from opts import LEGATO
+LIPCON = bool(LEGATO.get("lipcon")); BURST = bool(LEGATO.get("burst")); BURSTGAIN = float(LEGATO.get("burstgain", 1.0)); SIBGAIN = float(LEGATO.get("sibgain", 1.0)); FRLP = float(LEGATO.get("frlp", 0) or 0)
+REL = bool(LEGATO.get("release"))
 
 def smooth_noise(n, dt, fc, rnd, amp):
     """two-pole low-passed random walk, unit-ish variance * amp."""
@@ -30,6 +34,8 @@ def render_line(perf, li, cfg=None, debug=None):
     br = [b for b in perf["breaths"] if b["line"] == li]
     rnd = random.Random(7000 + li * 13)
     t_on = segs[0]["t0"]; t_off = segs[-1]["t1"]
+    t_fade = t_off - .20      # release: the voice starts to fade here; relcoda: not before a final consonant begins
+    if LEGATO.get("relcoda") and segs[-1].get("role") == "off": t_fade = max(t_fade, segs[-1]["t0"])
     T0 = (br[0]["t0"] if br else t_on) - .10
     T1 = t_off + .42
     sc = GE.Score(segs, perf); tk = sc.T
@@ -48,7 +54,7 @@ def render_line(perf, li, cfg=None, debug=None):
     while t < T1:
         x = (t - T0) * 1000
         L = L0 + lerp(LPg, x) + lerp(LHg, x) + lerp(wob, x) + lerp(lhp, x)
-        T = L / (NSEC * C0); times.append(t); Ts.append(T); t += TB.FRAME * T
+        T = cfg["K"] * L / (NSEC * C0); times.append(t); Ts.append(T); t += TB.FRAME * T
     times.append(t); Ts.append(T); nf = len(Ts) - 1
     S = {k: array("d", tr.sample(times)) for k, tr in tk.items()}
     # living drift of every articulator
@@ -76,6 +82,19 @@ def render_line(perf, li, cfg=None, debug=None):
         w1 = smooth_noise(nf + 1, .001, 4.0, rnd, cfg["aflut"]); db = [x + c for x, c in zip(db, w1)]
     if cfg.get("xam"):
         db = [x + cfg["xam"] * math.sin(2 * math.pi * 1.3 * t) for x, t in zip(db, times)]
+    # ------------------------------------------------ formant tuning: open the jaw so F1 stays above a high pitch (front vowels only)
+    if cfg.get("ftune"):
+        import tuning as TU
+        Jt = S["J"]; nuc_ = [g for g in segs if g["role"] == "nuc"]
+        for g in nuc_:
+            if TU.MAP.get(g["ph"], g["ph"]) not in TU.table(): continue
+            ra = .05
+            for i in range(nf + 1):
+                t_ = times[i]
+                if t_ < g["t0"] - ra or t_ > g["t1"] + ra: continue
+                u_ = 1.0 if g["t0"] <= t_ <= g["t1"] else 1.0 - (g["t0"] - t_ if t_ < g["t0"] else t_ - g["t1"]) / ra
+                u_ = u_ * u_ * (3 - 2 * u_)
+                Jt[i] += u_ * TU.dj(g["ph"], f0[i], cfg["K"], cfg["ftune"])
     # ------------------------------------------------ areas and coefficients per frame
     piri = .85
     KF = []; CF = []; Amins = []; debugA = []
@@ -96,7 +115,7 @@ def render_line(perf, li, cfg=None, debug=None):
     T_prev = None
     Agv = []           # glottal dc opening used by the source
     for i in range(nf + 1):
-        T = Ts[i]; dx = T * C0; LH = S["LH"][i] + lerp(lhp, (times[i] - T0) * 1000)
+        T = Ts[i]; dxp = T * C0; dx = dxp / cfg["K"]; LH = S["LH"][i] + lerp(lhp, (times[i] - T0) * 1000)
         J, X, Y, TRa, TT, BP, LA, EP = S["J"][i], S["X"][i], S["Y"][i], S["TR"][i], S["TT"][i], S["BP"][i], S["LA"][i], S["EP"][i] + cfg["ep"]
         loud = max(0.0, (db[i] + 12) / 12); J = J * (1 + .10 * loud) + .03 * loud; LA *= 1 + .05 * loud
         if inh[i] > 0: J += .12 * inh[i]; LA += .15 * inh[i]
@@ -137,8 +156,8 @@ def render_line(perf, li, cfg=None, debug=None):
             for n in range(NSEC - 4, NSEC):
                 s = (n + .5) * dx - LH; e = s - (Lt - .45); a = abs(e) - .32
                 lim = cl + (a * 2.2 if a > 0 else 0.0)
-                d = D[n]; df = d - lim; d = .5 * (d + lim - math.sqrt(df * df + .012)); D[n] = d
-                if d < amin: amin = d
+                d0 = d = D[n]; df = d - lim; d = .5 * (d + lim - math.sqrt(df * df + .012)); D[n] = d
+                if d < amin and (not LIPCON or lim < d0): amin = d   # lipcon: only where the lips, not the tongue, bind
             conA.append((max(.0, amin), NSEC * dx - .3))
         else: conA.append((9.0, NSEC * dx - .3))
         A = [PI4 * d * d if d > .012 else 1.1e-4 for d in D]
@@ -164,7 +183,7 @@ def render_line(perf, li, cfg=None, debug=None):
         if vst > 0 and Act < .02: tau = max(tau, .030 * vst)
         Pio += (Pq - Pio) * (1 - math.exp(-dtf / tau))
         # transient at release
-        if prevAc < .006 and Act >= .006 and Pio > 600: tr_env = math.sqrt(Pio / 8000.0)
+        if prevAc < .006 and Act >= .006 and Pio > 600: tr_env = ((Pio / 8000.0) ** 1.5 if BURST else math.sqrt(Pio / 8000.0)) * BURSTGAIN * (1 + S["BG"][i])   # burst: same pressure law as frication
         prevAc = Act
         tr_env *= math.exp(-dtf / .0030)
         gains = [0.0] * len(sites)
@@ -176,7 +195,7 @@ def render_line(perf, li, cfg=None, debug=None):
                 amp = (max(0.0, dP / (1 + 8 * vel) - 350.0) / 8000.0) ** 1.5 * math.sqrt(min(a, .35) / .1)
                 if a < .0012: amp *= a / .0012
                 if c == 0:      # tongue tip
-                    if pl - LH > 14.8 and pl - LH < 15.12: ob, fc, trg = 2.1, 4400., .6       # s z
+                    if pl - LH > 14.8 and pl - LH < 15.12: ob, fc, trg = 2.1 * SIBGAIN, 4400., .6       # s z
                     elif pl - LH < 14.2: ob, fc, trg = 1.25, 2700., .6                          # sh
                     elif pl - LH < 14.8: ob, fc, trg = .9, 4800., 1.5                           # t d n
                     else: ob, fc, trg = .40, 6000., .3                                          # dh
@@ -208,7 +227,7 @@ def render_line(perf, li, cfg=None, debug=None):
             a = A[w-1]; b = A[w]
             if a < .25: a = .25
             if b < .25: b = .25
-            cst.append(Gw * 2.0 * math.sqrt(math.pi * b) * 6.0 * dx * RC / (a + b))
+            cst.append(Gw * 2.0 * math.sqrt(math.pi * b) * 6.0 * dxp * RC / (a + b))
         Lq = RHO * .30 / T
         Rg = math.sqrt(2 * RHO * max(1500., PS - Pio)) * 1.15
         cst += [hw, Lq, Rg + Lq, 1.0 / T]
@@ -263,7 +282,7 @@ def render_line(perf, li, cfg=None, debug=None):
         base = f0[fi]
         jl += .22 * (rnd.gauss(0, 1) - jl); sl += .25 * (rnd.gauss(0, 1) - sl)
         hi = min(1.0, max(0.0, (base - 240) / 130))
-        j = cfg["jit"] * (1 + 1.3 * hi) * (.0026 * rnd.gauss(0, 1) + .0052 * jl)
+        j = cfg["jit"] * (1 + cfg["jhi"] * hi) * (.0026 * rnd.gauss(0, 1) + .0052 * jl)
         sh = cfg["shim"] * (.012 * rnd.gauss(0, 1) + .030 * sl)
         fry = 0.0
         if t > fry_from and frybias > .2: fry = frybias * min(1.0, (t - fry_from) / .2)
@@ -276,6 +295,9 @@ def render_line(perf, li, cfg=None, debug=None):
         if ga > .04: gate = max(0.0, 1 - (ga - .04) / .09); gate = gate * gate * (3 - 2 * gate)
         onset = min(1.0, max(0.0, (t - (t_on - .03)) / .07)); offs = min(1.0, max(0.0, (t_off + .05 - t) / .16))
         if t < t_on - .03 or t > t_off + .05: onset = 0.0
+        if REL:
+            u = min(1.0, max(0.0, (t - t_fade) / .30)); offs = 1 - u * u * (3 - 2 * u)
+            onset = min(1.0, max(0.0, (t - (t_on - .03)) / .07)) if t_on - .03 <= t <= t_off + .10 else 0.0
         lev = 10 ** ((db[fi] + arc[fi]) / 20.0)
         amp = lev * gate * (trans ** 1.2) * AV[fi] * onset * offs * (1 + sh) * (1 - .38 * fry * (1 if alt > 0 else 0))
         loudn = (db[fi] + 1.6 * arc[fi] + 12) / 12
@@ -310,7 +332,8 @@ def render_line(perf, li, cfg=None, debug=None):
         t = tend; pn += 1
     # leak area + noises
     R = rnd.random
-    lp1 = lp2 = lp3 = lp4 = lp5 = 0.0; a4 = 1 - math.exp(-2 * math.pi * 6000 * Ts[0]); hp = 0.0
+    lp1 = lp2 = lp3 = lp4 = lp5 = lp6 = lp7 = 0.0; a4 = 1 - math.exp(-2 * math.pi * 6000 * Ts[0]); hp = 0.0
+    a6 = 1 - math.exp(-2 * math.pi * FRLP * Ts[0]) if FRLP else 0.0
     Ka = 4200.0 * cfg["Ka"]; lk_p = None
     for k in range(nf):
         T = Ts[k]; n0 = k * fl; ga = S["GA"][k]; ga = ga if ga > 0 else 0.0
@@ -318,11 +341,14 @@ def render_line(perf, li, cfg=None, debug=None):
         dP = max(0.0, Ps[k] - info["Pio"][k]) / 8000.0
         lev = 10 ** (db[k] / 20.0)
         vo = 1.0 if (t_on - .05 < times[k] < t_off + .12) else 0.0
+        if REL:
+            ub = min(1.0, max(0.0, (times[k] - t_off) / .35)); vo = (1 - ub * ub * (3 - 2 * ub)) if t_on - .05 < times[k] else 0.0
         dp15 = dP ** 1.5
         leak = .006 + .022 * bre[k] + ga
         # voiced breath noise (pulsing with the flow) + abduction noise
         fade = 1.0
         if times[k] > t_off - .05: fade = max(0.0, 1 - (times[k] - t_off + .05) / .22)
+        if REL and times[k] > t_off - .05: fade = max(0.0, 1 - (times[k] - t_off + .05) / .35)
         nv = vo * (.15 + .50 * bre[k]) * (lev ** .55) * .34 * cfg["nv"] * fade
         nu = vo * dp15 * math.sqrt(min(ga, .35) / .2) * .14 * cfg["nu"] if ga > .004 else 0.0
         ni = .085 * i0 * i0
@@ -339,7 +365,9 @@ def render_line(perf, li, cfg=None, debug=None):
             lkc += dlk; ag[n] += lkc
             w = R() - .5
             lp2 += a2 * (w - lp2); lp3 += a2 * (lp2 - lp3); lp4 += a3 * (lp3 - lp4)
-            nfz[n] = cg * (lp3 - lp4) * (1.0 - fm * .65 * (1 - F))
+            v = cg * (lp3 - lp4) * (1.0 - fm * .65 * (1 - F))
+            if FRLP: lp6 += a6 * (v - lp6); lp7 += a6 * (lp6 - lp7); v = lp7
+            nfz[n] = v
     # inhaled air: turbulence also at lips/teeth handled by the same glottal/pharyngeal source
     gl = cfg["gload"]
     for i in range(N): ag[i] *= gl
@@ -354,14 +382,14 @@ def render_line(perf, li, cfg=None, debug=None):
     if debug is not None:
         debug.update(times=times, S=S, info=info, areas=debugA, f0=f0, db=db)
     n0 = int(math.ceil(times[0] * SR))
-    if cfg["lev"] > 0: y = effort(y, n0, nucs, times, db, arc, cfg["lev"])
+    if cfg["lev"] > 0: y = effort(y, n0, nucs, times, db, arc, cfg["lev"], cfg.get("effhp", 260.0), cfg.get("lref", LREF))
     return n0, y
 
-OPENV = dict(AA=1.2, AE=1.0, AO=.8, AW=1.2, AY=1.2, OY=.6, EH=.6, AH=.6, OW=.2, ER=-.3, EY=0, IH=-.8, UH=-.8, IY=-1.6, UW=-1.6)
+OPENV = dict(AA=1.2, AE=1.0, AO=.8, AW=1.2, AY=1.2, OY=.6, EH=.6, AH=.6, OW=.2, OH=.2, ER=-.3, EY=0, IH=-.8, UH=-.8, IY=-1.6, UW=-1.6)
 LREF = 106.0
-def effort(y, n0, nucs, times, db, arc, amount):
+def effort(y, n0, nucs, times, db, arc, amount, hp=260.0, lref=LREF):
     """a singer aims at loudness, not at glottal amplitude: correct the vowel-to-vowel level the tract produces (linear, slow)."""
-    a = math.exp(-2 * math.pi * 260 / SR); px = py = 0.0; e = array("d", [0.0])
+    a = math.exp(-2 * math.pi * hp / SR); px = py = 0.0; e = array("d", [0.0])
     c = 0.0
     for v in y:
         py = a * (py + v - px); px = v; c += py * py; e.append(c)
@@ -373,7 +401,7 @@ def effort(y, n0, nucs, times, db, arc, amount):
         Lm = 10 * math.log10((e[j] - e[i]) / (j - i) + 1e-9)
         k0 = max(0, min(len(times) - 1, int((a0 - T0) * 1000 * .985))); k1 = max(k0 + 1, min(len(times) - 1, int((b0 - T0) * 1000 * .985)))
         D = sum(db[k] + arc[k] for k in range(k0, k1)) / (k1 - k0) + OPENV.get(g["ph"], 0)
-        er = (D + LREF) - Lm
+        er = (D + lref) - Lm
         pts.append((a0, b0, max(-12.0, min(12.0, er)) * amount))
     # absolute offset kept: the same LREF serves every line
     out = array("d"); ap = out.append; q = 0; n = len(pts); gp = None
@@ -394,11 +422,12 @@ def effort(y, n0, nucs, times, db, arc, amount):
 
 _KER = None
 HALF = 26; PH = 256
-def kernel():
+def kernel(fc=19500.0 / 95000.0 * 2):
     global _KER
-    if _KER is None:
-        fc = 19500.0 / 95000.0 * 2          # cutoff relative to sim Nyquist
-        _KER = []
+    if _KER is None: _KER = {}
+    fc = round(fc, 4)
+    if fc not in _KER:
+        out_ = []
         for p in range(PH + 1):
             fr = p / PH; row = []
             for m in range(-HALF + 1, HALF + 1):
@@ -406,11 +435,12 @@ def kernel():
                 s = fc if abs(x) < 1e-9 else math.sin(math.pi * fc * x) / (math.pi * x)
                 z = x / (HALF + .5); w = .42 + .5 * math.cos(math.pi * z) + .08 * math.cos(2 * math.pi * z) if abs(z) < 1 else 0.0
                 row.append(s * w)
-            g = sum(row); _KER.append([v / g for v in row])
-    return _KER
+            g = sum(row); out_.append([v / g for v in row])
+        _KER[fc] = out_
+    return _KER[fc]
 
 def resample(x, times, Ts, nf, fl):
-    ker = kernel(); n0 = int(math.ceil(times[0] * SR)); n1 = int(times[nf] * SR) - 1
+    ker = kernel(2 * 19500.0 * Ts[0]); n0 = int(math.ceil(times[0] * SR)); n1 = int(times[nf] * SR) - 1
     pad = array("d", bytes(8 * HALF)); x = pad + x + pad
     out = array("d"); k = 0; ap = out.append
     try:

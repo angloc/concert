@@ -1,3 +1,9 @@
+---
+type: reference
+title: Film world
+description: The API for drawing land, weather, houses, growing things and the red thread; read before building a place or a scene.
+---
+
 # BIDE.world — land, weather, houses, growing things, wool
 
 `const W = BIDE.world`. Everything is sheet space 1920×1080, deterministic in `t`, and draws straight on the painter `p`.

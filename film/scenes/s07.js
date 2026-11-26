@@ -1,6 +1,6 @@
-// s07  "It's I'll be here in sunshine or in shadow"   (climax of verse one)
+// s07  "'Tis I'll be here in sunshine or in shadow"   (climax of verse one)
 // FEELING  the vow: the whole weather of a life goes over her and she does not move from the spot.
-// BEATS    0.2 a gust drives her back (It's) · 0.65 she steps into it, plants both feet, draws the thread in to her heart (I'll be) · 1.6 HERE: chest up, head up, the knot of hair breaks, blossom leaves the thorn
+// BEATS    0.2 a gust drives her back ('Tis) · 0.65 she steps into it, plants both feet, draws the thread in to her heart (I'll be) · 1.6 HERE: chest up, head up, the knot of hair breaks, blossom leaves the thorn
 //          2.6-3.6 a tide of gold runs in over the low country, the hill, her (in sun-) · 3.9 CLOSE: her lifted face opens to the light (-shine) · 4.6-5.2 the shadow's edge crosses the face; behind it her hair is white (or in)
 //          5.4 WIDE: indigo swallows the hill, the leaves are stripped (shadow) · 5.7 snow, bare tree, she is bent and old, same spot · 6.0-6.8 the light comes back and finds only her; the thorn blossoms again; she lifts her face
 // EYE      thread -> her -> sky edge -> her. VALUES a dark-footed figure on the lightest part of the sky; the only still thing in the sheet. Every change of season and age happens behind a moving edge of light.

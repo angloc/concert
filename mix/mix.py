@@ -8,12 +8,30 @@ from dsp import *
 import room
 BUILD = os.path.join(ROOT, "build"); sc = json.load(open(os.path.join(BUILD, "score.json")))
 TOTAL = sc["total"]; N = int(TOTAL * SR); B = 64; BR = SR / B; NB = N // B + 1
-SEG = 256 * 2756; PRE = B * 280; TAIL = int(3.2 * SR)          # about 16 s, 0.4 s filter pre-roll
+SEG = 256 * 2756; PRE = B * 280; TAIL = int(5.0 * SR)          # about 16 s, 0.4 s filter pre-roll
 STEMS = ("harp", "strings", "whistle", "other")
 # stage plan: gain, early-reflection send, late send, position (x,y,z in m; the listener sits at 4.0,4.4)
 STAGE = dict(voice=(1.0, .42, .40, (4.0, 6.0, 1.6)), harp=(.50, .55, .48, (2.4, 7.4, 1.1)), strings=(.46, .90, .78, (5.0, 9.6, 1.2)),
              whistle=(.86, .80, .85, (5.6, 9.0, 1.6)), other=(.55, .30, .80, (6.6, 12.0, 1.5)))
 WIDTH = dict(harp=1.15, strings=1.18, whistle=1.0, other=1.1)
+# the posthumous section (from "And I shall hear", line 12 to the end): she is further away, in a longer, darker room, and doubled by two slowly
+# moving, slightly detuned copies spread wide.  Linear and time-varying only through a smooth envelope.
+GHOST_LINE = 12; GHOST_RAMP = 1.5; GHOST_ON = sc["lines"][GHOST_LINE]["t0"] - .5
+GHOST = dict(dry=.30, rev=.55, t60=4.6, t60hi=2.0, fc=2900.0, pre=.045, dub=.50, d1=(.0125, .0011, .31, 0.0), d2=(.0178, .0014, .23, 2.1))
+def ghost_env(s, n):
+    e = []; hi = 0.0
+    for i in range(0, n, 64):
+        u = ((s + i) / SR - GHOST_ON) / GHOST_RAMP; u = 0.0 if u < 0 else 1.0 if u > 1 else u * u * (3 - 2 * u); e.append(u); hi = max(hi, u)
+    if hi == 0.0: return None
+    return [e[min(len(e) - 1, i // 64)] for i in range(n)]
+def mod_delay(vx, off, n, s, base, depth, rate, ph):
+    """vx: voice with `off` samples of history in front; returns n samples delayed by base seconds, moved by a slow LFO (fractional, linear interpolation)"""
+    out = []; ap = out.append; b = base * SR; dp = depth * SR; w = 2 * math.pi * rate / SR; sn = math.sin; m = len(vx) - 2
+    for i in range(n):
+        q = off + i - (b + dp * sn(w * (s + i) + ph)); j = int(q)
+        if j < 0: ap(0.0); continue
+        f = q - j; ap(vx[j] * (1 - f) + vx[j + 1] * f if j < m else 0.0)
+    return out
 VOICE_LUFS = -18.0; TARGET = -16.0; WORKERS = 2
 V_HP = (("hp", 78.0, .7), ("hp", 60.0, .6)); V_EQ = (("ls", 210.0, .7, 1.0), ("peak", 3300.0, 1.0, -1.0), ("hs", 9000.0, .7, -1.5)); V_ESS = (("hp", 4600.0, .75),)
 PRES = (("hp", 300.0, .7), ("lp", 4000.0, .7))                  # 300-4000 Hz: where words live
@@ -131,8 +149,19 @@ def plan(vp, pool, rep):
 def _seg(a):
     s, n, vp, gv, gd, gb, stage = a; L = [0.0] * (n + TAIL); R = [0.0] * (n + TAIL); lateL = [0.0] * n; lateR = [0.0] * n; any_ = False
     if vp:
-        x = BQ(*V_HP, *V_EQ)([p / 32768.0 for p in slab(vp, s, n, PRE)]); hb = BQ(*V_ESS)(x); x, hb = x[PRE:], hb[PRE:]
+        x = BQ(*V_HP, *V_EQ)([p / 32768.0 for p in slab(vp, s, n, PRE)]); hb = BQ(*V_ESS)(x); xh, hbh = x[PRE - 512:PRE], hb[PRE - 512:PRE]; x, hb = x[PRE:], hb[PRE:]
+        hist = [(p - q * gd[0]) * gv[0] for p, q in zip(xh, hbh)]          # the 512 samples before this segment, for the doubles
         hb = apply_gain(hb, [1 - v for v in gd[1:]], 1 - gd[0]); v = apply_gain([p - q for p, q in zip(x, hb)], gv[1:], gv[0]); _, es, ls, pos = stage["voice"]; any_ = True
+        ge = ghost_env(s, n)
+        if ge is not None:
+            vx = hist + list(v)
+            for (b_, dp_, rt_, ph_), pl, pr in ((GHOST["d1"], .85, .35), (GHOST["d2"], .35, .85)):
+                dd = mod_delay(vx, 512, n, s, b_, dp_, rt_, ph_); dd = [q * e * GHOST["dub"] for q, e in zip(dd, ge)]
+                mix_into(L, dd, 0, pl); mix_into(R, dd, 0, pr)
+            gi = [q * e * GHOST["rev"] for q, e in zip(v, ge)]
+            g1, g2 = room.fdn(gi, gi, t60=GHOST["t60"], t60hi=GHOST["t60hi"], fc=GHOST["fc"], predelay=GHOST["pre"], tail=TAIL / SR, seed=11, size=1.15)
+            mix_into(L, g1, 0, .7071); mix_into(R, g2, 0, .7071)
+            v = [q * (1 - GHOST["dry"] * e) for q, e in zip(v, ge)]
         mix_into(L, v, 0, .7071); mix_into(R, v, 0, .7071)
         el, er = room.early(v + [0.0] * 4800, pos, order=2, pre=.014); mix_into(L, el, 0, es * .7071); mix_into(R, er, 0, es * .7071)
         mix_into(lateL, v, 0, ls * .7071); mix_into(lateR, v, 0, ls * .7071)

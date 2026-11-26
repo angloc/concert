@@ -1,0 +1,26 @@
+{
+ "name": "female",
+ "description": "Female re-casting of the bide voice (2026-11-25): uniformly scaled male tract (K 0.84), lighter source, front-vowel formant tuning. Not female anatomy.",
+ "voice": {
+  "lev": 0.5,
+  "nv": 0.8,
+  "nu": 0.55,
+  "nm": 0.35,
+  "flut": 9,
+  "ep": 0.0,
+  "Kf": 1.3,
+  "Ka": 1.0,
+  "Ks": 1.0,
+  "Kt": 1.0,
+  "rd": 0.3,
+  "jit": 0.9,
+  "shim": 1.2,
+  "hf": 0.19,
+  "wr": 0.022,
+  "gload": 0.45,
+  "K": 0.84,
+  "jhi": 0.35,
+  "ftune": 1.2
+ },
+ "mic": 1
+}

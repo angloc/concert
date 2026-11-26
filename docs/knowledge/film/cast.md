@@ -1,3 +1,9 @@
+---
+type: reference
+title: Film cast
+description: "The API for drawing the people of the film: figures, poses, pairs, close-ups, expressions and light; read before staging a scene."
+---
+
 # CAST — the people of BIDE
 
 Everything hangs off `BIDE.cast` (call it `C`). All calls take the painter `p` first and draw into the CURRENT layer.

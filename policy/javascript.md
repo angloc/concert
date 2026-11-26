@@ -1,0 +1,12 @@
+# JavaScript profile
+
+- Format and lint: `prettier --check .`; `eslint . --max-warnings 0`. Type check: `tsc --noEmit` over TypeScript and over JavaScript that carries JSDoc types (`checkJs`); where a framework supplies its own checker for its component files, use that checker in place of `tsc`.
+- Test: Vitest, run as `vitest run`, with `testTimeout` set to 60000 ms.
+- Skipped tests: the Vitest JSON reporter reports skipped and todo tests.
+- Coverage: `vitest run --coverage` with the V8 provider and `coverage.thresholds.statements` set to 95. Platform-specific files are listed in `coverage.exclude`.
+- Platform selection: Vitest projects, selected with `--project`.
+- Vulnerabilities: `npm audit`.
+- Toolchain: `.node-version` pins Node, and Make reads the file. `package-lock.json` pins the tools, which are development dependencies run through `npm exec`. Commit the lock file.
+- Code: ES modules (`"type": "module"`). A design module is one directory under `src/`, named for the decision that the directory hides (never `utils` or `common`, and never for a kind of file such as `components`, `hooks` or `stores`). The `index` file of the directory is the interface of the module, and other modules import only from it. A comment at the head of the `index` file states the decision. Entry points are thin: one file that wires modules together. Exported functions, classes and components have JSDoc that states the current purpose, and public interfaces carry types. Tests sit beside the code as `<name>.test.<ext>`. Shared fixtures are `test.extend` fixtures in one helper module, `globalSetup` holds expensive shared setup, and `fs.mkdtemp` makes temporary directories. The package root is the repository root, or one subdirectory where another language owns the root.
+- Install: the base image is the official `node` image of the `.node-version` version. `install` reads `Makefile`, `.node-version`, `package.json` and `package-lock.json`, installs Node at the pinned version where JavaScript is a secondary language, and runs `npm ci`.
+- Version mapping: the application version is the tag without the leading `v`, verbatim (`1.2.3`, or `1.2.3-rc.1`), which is valid SemVer. `package.json` carries the placeholder version `0.0.0`. `package` passes `VERSION_TAG` to the build as a constant that the application reports, and sets the version of a published package with `npm pkg set version=<value>` on a copy under `build/`.

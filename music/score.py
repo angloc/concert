@@ -19,7 +19,7 @@ def S(word, ph, *notes): return dict(word=word, ph=ph.split(), notes=list(notes)
 V1 = [
  # line 1
  dict(text="Oh Danny boy, the pipes, the pipes are calling", mood="tender, a little held breath; she hears it before he does", dyn=(0.42,0.50), color="warm", syl=[
-  S("Oh","OW",("C",1)), S("Dan-","D AE",("D",1)), S("ny","N IY",("E",1)),
+  S("Oh","OH",("C",1)), S("Dan-","D AE",("D",1)), S("ny","N IY",("E",1)),
   S("boy","B OY",("F",3)), S("the","DH AH",("E",1)), S("pipes","P AY P S",("F",1)), S("the","DH AH",("B",1)), S("pipes","P AY P S",("A",1)), S("are","AA R",("F",1)),
   S("call-","K AO",("E",1),("D",1)), S("ing","L IH NG",("B,",2)) ]),
  dict(text="From glen to glen, and down the mountain side", mood="the sound travelling; wide, looking far away", dyn=(0.44,0.52), color="open", syl=[
@@ -28,28 +28,28 @@ V1 = [
   S("side","S AY D",("E",4)) ]),
  dict(text="The summer's gone, and all the roses falling", mood="regret, softer, head down", dyn=(0.40,0.46), color="soft", syl=[
   S("The","DH AH",("C",1)), S("sum-","S AH",("D",1)), S("mer's","M ER Z",("E",1)),
-  S("gone","G AO N",("F",3)), S("and","AE N D",("E",1)), S("all","AO L",("F",1)), S("the","DH AH",("B",1)), S("ro-","R OW",("A",1)), S("ses","Z IH Z",("F",1)),
+  S("gone","G AO N",("F",3)), S("and","AE N D",("E",1)), S("all","AO L",("F",1)), S("the","DH AH",("B",1)), S("ro-","R OH",("A",1)), S("ses","Z IH Z",("F",1)),
   S("fall-","F AO",("E",1),("D",1)), S("ing","L IH NG",("B,",2)) ]),
- dict(text="It's you, it's you must go and I must bide", mood="plain truth, almost spoken, 'I must bide' swallowed", dyn=(0.46,0.36), color="plain", syl=[
-  S("It's","IH T S",("C",1)), S("you","Y UW",("D",1)), S("it's","IH T S",("E",1)),
-  S("you","Y UW",("F",3)), S("must","M AH S T",("G",1)), S("go","G OW",("F",1)), S("and","AE N D",("E",1)), S("I","AY",("D",1)), S("must","M AH S T",("E",1)),
+ dict(text="'Tis you, 'tis you must go and I must bide", mood="plain truth, almost spoken, 'I must bide' swallowed", dyn=(0.46,0.36), color="plain", syl=[
+  S("'Tis","T IH Z",("C",1)), S("you","Y UW",("D",1)), S("'tis","T IH Z",("E",1)),
+  S("you","Y UW",("F",3)), S("must","M AH S T",("G",1)), S("go","G OH",("F",1)), S("and","AE N D",("E",1)), S("I","AY",("D",1)), S("must","M AH S T",("E",1)),
   S("bide","B AY D",("D",4)) ]),
  dict(text="But come ye back when summer's in the meadow", mood="hope opening, brighter, forward", dyn=(0.54,0.62), color="bright", syl=[
   S("But","B AH T",("A",1)), S("come","K AH M",("B",1)), S("ye","Y IY",("c",1)),
   S("back","B AE K",("d",3)), S("when","W EH N",("c",1)), S("sum-","S AH",("c",1)), S("mer's","M ER Z",("B",1)), S("in","IH N",("A",1)), S("the","DH AH",("B",1)),
-  S("mea-","M EH",("A",1),("F",1)), S("dow","D OW",("D",2)) ]),
+  S("mea-","M EH",("A",1),("F",1)), S("dow","D OH",("D",2)) ]),
  dict(text="Or when the valley's hushed and white with snow", mood="hushed, breathy, a whisper of snow", dyn=(0.52,0.34), color="hushed", syl=[
   S("Or","AO R",("A",1)), S("when","W EH N",("B",1)), S("the","DH AH",("c",1)),
   S("val-","V AE",("d",3)), S("ley's","L IY Z",("c",1)), S("hushed","HH AH SH T",("c",1)), S("and","AE N D",("B",1)), S("white","W AY T",("A",1)), S("with","W IH DH",("F",1)),
-  S("snow","S N OW",("E",4)) ]),
- dict(text="It's I'll be here in sunshine or in shadow", mood="CLIMAX: the vow, full voice, unguarded", dyn=(0.66,0.90), color="full", syl=[
-  S("It's","IH T S",("A",1)), S("I'll","AY L",("A",1)), S("be","B IY",("A",1)),
+  S("snow","S N OH",("E",4)) ]),
+ dict(text="'Tis I'll be here in sunshine or in shadow", mood="CLIMAX: the vow, full voice, unguarded", dyn=(0.66,0.90), color="full", syl=[
+  S("'Tis","T IH Z",("A",1)), S("I'll","AY L",("A",1)), S("be","B IY",("A",1)),
   S("here","HH IH R",("f",3)), S("in","IH N",("e",1)), S("sun-","S AH N",("e",1)), S("shine","SH AY N",("d",1)), S("or","AO R",("B",1)), S("in","IH N",("d",1)),
-  S("sha-","SH AE",("A",1),("F",1)), S("dow","D OW",("D",2)) ]),
+  S("sha-","SH AE",("A",1),("F",1)), S("dow","D OH",("D",2)) ]),
  dict(text="Oh Danny boy, oh Danny boy, I love you so", mood="coming down from the vow; 'I love you so' nearly breaks", dyn=(0.58,0.34), color="breaking", syl=[
-  S("Oh","OW",("C",1)), S("Dan-","D AE",("D",1)), S("ny","N IY",("E",1)),
-  S("boy","B OY",("F",1.5)), S("oh","OW",("B",1.5)), S("Dan-","D AE",("A",1)), S("ny","N IY",("F",1)), S("boy","B OY",("E",1.5)), S("I","AY",("D",0.75)), S("love","L AH V",("B,",1)), S("you","Y UW",("C",1)),
-  S("so","S OW",("D",5)) ]),
+  S("Oh","OH",("C",1)), S("Dan-","D AE",("D",1)), S("ny","N IY",("E",1)),
+  S("boy","B OY",("F",1.5)), S("oh","OH",("B",1.5)), S("Dan-","D AE",("A",1)), S("ny","N IY",("F",1)), S("boy","B OY",("E",1.5)), S("I","AY",("D",0.75)), S("love","L AH V",("B,",1)), S("you","Y UW",("C",1)),
+  S("so","S OH",("D",5)) ]),
 ]
 V2 = [
  dict(text="But when ye come, and all the flowers are dying", mood="older, emptier, very close to the ear", dyn=(0.36,0.42), color="worn", syl=[
@@ -70,7 +70,7 @@ V2 = [
   S("me","M IY",("D",4)) ]),
  dict(text="And I shall hear, though soft you tread above me", mood="waking under the earth, wonder, hushed but lit", dyn=(0.46,0.54), color="wonder", syl=[
   S("And","AE N D",("A",1)), S("I","AY",("B",1)), S("shall","SH AE L",("c",1)),
-  S("hear","HH IH R",("d",3)), S("though","DH OW",("c",1)), S("soft","S AO F T",("c",1)), S("you","Y UW",("B",1)), S("tread","T R EH D",("A",1)), S("a-","AH",("B",1)),
+  S("hear","HH IH R",("d",3)), S("though","DH OH",("c",1)), S("soft","S AO F T",("c",1)), S("you","Y UW",("B",1)), S("tread","T R EH D",("A",1)), S("a-","AH",("B",1)),
   S("bove","B AH V",("A",1),("F",1)), S("me","M IY",("D",2)) ]),
  dict(text="And all my grave will warmer, sweeter be", mood="warmth rising, growing", dyn=(0.54,0.62), color="warm", syl=[
   S("And","AE N D",("A",1)), S("all","AO L",("B",1)), S("my","M AY",("c",1)),

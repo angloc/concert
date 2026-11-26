@@ -6,11 +6,22 @@ import copy, json, math, os, random
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 import sys; sys.path.insert(0, HERE)
 import score as SC
+sys.path.insert(0, os.path.join(ROOT, "engine")); from opts import LEGATO
+import connected as CS, lexicon as LX
+REDLOG = []
+def reduce_line(L):
+    """connected-speech catalogue on one line (song lexicon gives stress; accent maps weak forms)"""
+    g = reduce_line.__dict__
+    if "cat" not in g:
+        g["cat"] = CS.load(); g["acc"] = LX.load_accent(os.path.join(ROOT, "accents", "irish", "accent.json"))
+        g["lex"] = LX.load_lexicon(os.path.join(ROOT, "songs", "danny-boy", "lexicon.txt"))
+    sy, log = CS.apply(CS.from_score(L["syl"], g["lex"], g["acc"], L.get("text")), g["cat"], g["acc"], line=L["i"],
+                       only=LEGATO["reduce"] if isinstance(LEGATO["reduce"], list) else None); REDLOG.extend(log); return sy
 CR = 200
-VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OY","UH","UW"}
-ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
-OFF= dict(P=.085,B=.07,T=.075,D=.065,K=.085,G=.07,S=.115,Z=.095,SH=.12,F=.095,V=.080,TH=.09,DH=.07,HH=.06,M=.100,N=.095,NG=.150,L=.105,R=.110,W=.07,Y=.07)
-VOICED_OBS = {"B","D","G","V","Z","DH"}
+VOW = {"AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OH","OY","UH","UW"}
+ON = dict(P=.115,B=.085,T=.100,D=.070,K=.110,G=.085,S=.125,Z=.090,SH=.125,ZH=.095,CH=.130,JH=.100,F=.105,V=.075,TH=.10,DH=.060,HH=.070,M=.085,N=.078,NG=.085,L=.080,R=.085,W=.085,Y=.075)
+OFF= dict(P=.085,B=.07,T=.075,D=.065,K=.085,G=.07,S=.115,Z=.095,SH=.12,ZH=.100,CH=.120,JH=.095,F=.095,V=.080,TH=.09,DH=.07,HH=.06,M=.100,N=.095,NG=.150,L=.105,R=.110,W=.07,Y=.07)
+VOICED_OBS = {"B","D","G","V","Z","DH","ZH","JH"}
 WEAK = {"the","and","are","in","or","as","to","am","a-","an","at","for","that","it's","with"}
 COL = dict(warm=(.45,.30),open=(.50,.24),soft=(.36,.42),plain=(.42,.32),bright=(.56,.20),hushed=(.16,.80),full=(.72,.12),
            breaking=(.40,.46),worn=(.26,.58),wonder=(.42,.44),rest=(.32,.52))
@@ -45,12 +56,18 @@ def sstep(x): x=max(0.0,min(1.0,x)); return x*x*x*(x*(6*x-15)+10)
 def segments(sc):
     segs=[]; rnd=random.Random(11)
     for L in sc["lines"]:
-        syl=L["syl"]; info=[]
+        syl=L["syl"]; info=[]; RS=reduce_line(L) if LEGATO.get("reduce") else None
+        BRK=[x["brk"] for x in CS.from_score(syl, None, None, L.get("text"))] if LEGATO.get("comma") else None
         for s in syl:
             ph=s["ph"]; vi=[i for i,p in enumerate(ph) if p in VOW][0]
             info.append((ph[:vi],ph[vi],ph[vi+1:]))
+        if RS: info=[(r["on"],r["nuc"],r["off"]) for r in RS]
         n=len(syl)
         onset_d=[[ON[p]*rnd.uniform(.94,1.08) for p in info[i][0]] for i in range(n)]
+        if RS: onset_d=[[d*m for d,m in zip(onset_d[i],RS[i]["on_mult"])] for i in range(n)]
+        if LEGATO.get("cons"):
+            cf=[max(.6,min(1.0,syl[i]["d"]/.35)) for i in range(n)]
+            onset_d=[[d*cf[i] for d in onset_d[i]] for i in range(n)]
         for i in range(n):                       # clusters are shorter than the sum of parts
             k=len(onset_d[i]); f={0:1,1:1,2:.80,3:.70}[min(3,k)]
             onset_d[i]=[d*f for d in onset_d[i]]
@@ -59,15 +76,22 @@ def segments(sc):
             end=s["t"]+s["d"] if i==n-1 else syl[i+1]["t"]-sum(onset_d[i+1])
             end-=CUT.get(key(L,i),0.0)
             offd=[OFF[p]*rnd.uniform(.94,1.08) for p in off]
+            if LEGATO.get("cons"): offd=[d*max(.6,min(1.0,s["d"]/.35)) for d in offd]
+            if RS: offd=[d*m for d,m in zip(offd,RS[i]["off_mult"])]
             if i==n-1: offd=[d*1.25 for d in offd]
+            if i==n-1 and LEGATO.get("finallen") and off and off[-1] in ("B","D","G"): offd[-1]*=float(LEGATO["finallen"])   # a sung final stop: held, then released
+            elif LEGATO.get("comma") and BRK[i]: offd=[d*1.25 for d in offd]   # phrase-final lengthening at punctuation
             k=len(offd); f={0:1,1:1,2:.78,3:.66}[min(3,k)]; offd=[d*f for d in offd]
-            avail=end-t; vmin=max(.10,.42*avail)
+            avail=end-t; vmin=max(.05,.15*avail) if LEGATO.get("keepcons") else max(.10,.42*avail)
             if avail-sum(offd)<vmin and offd:
-                q=max(.35,(avail-vmin)/sum(offd)); offd=[d*q for d in offd]
+                q=max(.70 if LEGATO.get("keepcons") else .35,(avail-vmin)/sum(offd)); offd=[d*q for d in offd]
             x=t-sum(onset_d[i])
             for p,d in zip(on,onset_d[i]): segs.append(dict(ph=p,t0=x,t1=x+d,line=L["i"],syl=i,role="on")); x+=d
             vend=end-sum(offd)
-            segs.append(dict(ph=nuc,t0=t,t1=vend,line=L["i"],syl=i,role="nuc",d=s["d"],weak=s["word"].strip("-").lower() in WEAK,last=i==n-1))
+            # syllabic sonorant (connected-speech catalogue): the vowel shrinks to 20 ms and the sonorant carries the note
+            el=bool(RS and RS[i]["syllabic"])
+            if el: offd=[offd[0]+vend-(t+.02)]+offd[1:]; vend=t+.02
+            segs.append(dict(ph=nuc,t0=t,t1=vend,line=L["i"],syl=i,role="nuc",d=s["d"],weak=bool(el) or s["word"].strip("-").lower() in WEAK,last=i==n-1))
             x=vend
             for p,d in zip(off,offd): segs.append(dict(ph=p,t0=x,t1=x+d,line=L["i"],syl=i,role="off")); x+=d
     segs.sort(key=lambda g:g["t0"])
@@ -103,7 +127,7 @@ def tracks(sc,segs):
             nt["apex"]=False
         top=max(x["m"] for x in notes)
         for x in notes: x["apex"]=x["m"]==top
-        ten0,bre0=COL[L["color"]]
+        ten0,bre0=COL[LEGATO.get("color") or L["color"]]       # "color": diagnostic override for every line
         i0,i1=int(t0*CR),min(n-1,int(t1*CR))
         for i in range(i0,i1+1):
             t=i/CR
@@ -114,11 +138,19 @@ def tracks(sc,segs):
                 iv=abs(bn["m"]-a); w=min(.16,.080+.011*iv); 
                 if bn["mel"]: w*=1.15
                 return a+(bn["m"]-a)*sstep((t-(bn["t"]-.62*w))/w)
+            if LEGATO.get("pitch"):
+                def glide(a,bn,_k=k):
+                    iv=abs(bn["m"]-a); w=min(.16,.080+.011*iv)
+                    if bn["mel"]: w*=1.15
+                    pd=notes[_k-1]["dur"] if _k>0 else bn["dur"]
+                    w=max(w,min(.25,.45*min(pd,bn["dur"])))       # glide grows with the notes, centred on the change
+                    return a+(bn["m"]-a)*sstep((t-(bn["t"]-.5*w))/w)
             if k>0: m=glide(notes[k-1]["m"],nt)
             else:   m=nt["m"]-ARC[L["i"]][4]*(1-sstep((t-(nt["t"]-.10))/.22))     # scoop into the phrase
             iv=nt["m"]-(notes[k-1]["m"] if k>0 else nt["m"])
-            if iv>=3: m+=.26*math.exp(-((t-nt["t"]-.085)/.045)**2)
-            if iv<=-3: m-=.16*math.exp(-((t-nt["t"]-.085)/.05)**2)
+            kick=not (LEGATO.get("pitch") and nt["dur"]<.4)
+            if kick and iv>=3: m+=.26*math.exp(-((t-nt["t"]-.085)/.045)**2)
+            if kick and iv<=-3: m-=.16*math.exp(-((t-nt["t"]-.085)/.05)**2)
             if nt["ext"]>0:
                 x=t-nt["t"]; tail=.15 if nt["spec"] and nt["ext"]>.4 else .30
                 e=nt["ext"]*sstep((x-nt["von"])/.50)*(1-.75*sstep((x-nt["dur"]+tail)/(tail-.02)))
@@ -146,6 +178,12 @@ def tracks(sc,segs):
             db[i]=lev
             q=(dy-.45)*.55
             ten[i]=max(.05,min(.95,ten0+q*.6+amwob[i]*.02)); bre[i]=max(.03,min(.95,bre0-q*.5+.25*sstep((t-(te-.35))/.35)))
+    if LEGATO.get("level"):
+        h=6
+        for L in sc["lines"]:
+            ls=[g for g in segs if g["line"]==L["i"]]; a=int((ls[0]["t0"]+.12)*CR); b=int((ls[-1]["t1"]-.25)*CR)
+            src=db[a-h:b+h+1]
+            for i in range(a,b+1): db[i]=sum(src[i-a:i-a+2*h+1])/(2*h+1)
     for g in segs:                               # consonant microprosody
         if g["ph"] in VOICED_OBS:
             c=(g["t0"]+g["t1"])/2; w=(g["t1"]-g["t0"])*.6+.02
@@ -178,8 +216,8 @@ def timeline(sc,segs,tr):
             else: cur["w"]+=w.rstrip("-"); cur["t1"]=g[-1]["t1"]
             if not cont: words.append(cur); cur=None
     fps=24; n=int(sc["total"]*fps)+1
-    OPEN=dict(AA=.95,AE=.9,AH=.6,AO=.75,AW=.85,AY=.9,EH=.65,ER=.4,EY=.55,IH=.35,IY=.25,OW=.6,OY=.65,UH=.35,UW=.22)
-    RND=dict(AO=.6,OW=.8,OY=.5,UW=1,UH=.7,W=1,R=.4,SH=.6,AW=.4)
+    OPEN=dict(AA=.95,AE=.9,AH=.6,AO=.75,AW=.85,AY=.9,EH=.65,ER=.4,EY=.55,IH=.35,IY=.25,OW=.6,OH=.6,OY=.65,UH=.35,UW=.22)
+    RND=dict(AO=.6,OW=.8,OH=.8,OY=.5,UW=1,UH=.7,W=1,R=.4,SH=.6,ZH=.6,CH=.6,JH=.6,AW=.4)
     mo=[0.0]*n; mr=[0.0]*n
     for g in segs:
         o=OPEN.get(g["ph"],{"M":0,"B":0,"P":0,"F":.08,"V":.08}.get(g["ph"],.18)); r=RND.get(g["ph"],0)
@@ -203,5 +241,6 @@ if __name__=="__main__":
                    tension=[round(x,3) for x in tr["tension"]],breath=[round(x,3) for x in tr["breath"]]),
               open(os.path.join(ROOT,"build","perf.json"),"w"))
     json.dump(timeline(sc,segs,tr),open(os.path.join(ROOT,"build","timeline.json"),"w"))
+    if LEGATO.get("reduce"): json.dump(REDLOG,open(os.path.join(ROOT,"build","reductions.json"),"w"),indent=1)
     mn=min((g["t1"]-g["t0"],g["ph"],g["line"]) for g in segs); print("segs",len(segs),"shortest",mn,"total",sc["total"])
     for g in [g for g in segs if g["line"]==0]: print("%-3s %-3s %.3f-%.3f %4.0fms"%(g["ph"],g["role"],g["t0"],g["t1"],1000*(g["t1"]-g["t0"])))

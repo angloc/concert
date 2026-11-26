@@ -7,13 +7,15 @@ import argparse, array, json, math, os, sys, time, wave
 from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE); sys.path.insert(0, HERE)
 import engine as EN
+import persona as PS
 SR = EN.SR
 
-def load():
+def load(persona=False):
     p = os.path.join(ROOT, "build", "perf.json")
     if not os.path.exists(p): os.system("cd %s && python3 music/perform.py" % ROOT)
     perf = json.load(open(p)); sc = json.load(open(os.path.join(ROOT, "build", "score.json")))
     for k in ("f0", "db", "tension", "breath"): perf[k] = array.array("d", perf[k])
+    if persona: PS.shape_perf(perf)
     perf["_color"] = {L["i"]: L["color"] for L in sc["lines"]}
     perf["_dyn"] = {L["i"]: L["dyn"] for L in sc["lines"]}
     return perf
@@ -21,13 +23,15 @@ _P = None
 def job(a):
     global _P
     li, cfg = a
-    if _P is None: _P = load()
+    if _P is None: _P = load(bool(cfg.get("persona")))
+    if cfg.get("persona"):
+        user = {k: v for k, v in cfg.items() if k != "persona"}; cfg = PS.line_cfg(li, user)
     try: os.nice(10)
     except Exception: pass
-    t = time.time(); n0, y = EN.render_line(_P, li, cfg); y = EN_post(y)
+    t = time.time(); n0, y = EN.render_line(_P, li, cfg); y = EN_post(y, (cfg or {}).get("mic", 0))
     return li, n0, y, time.time() - t
 
-def EN_post(y):
+def EN_post(y, fem=0):
     """microphone: 2nd-order high-pass at 70 Hz, a light close-mic shelf, gentle top softening."""
     def biq(x, b0, b1, b2, a1, a2):
         x1 = x2 = y1 = y2 = 0.0; o = array.array("d")
@@ -49,7 +53,7 @@ def EN_post(y):
         w = 2*math.pi*f/SR; c = math.cos(w); al = math.sin(w)/(2*q); a0 = 1+al
         return ((1-c)/2/a0, (1-c)/a0, (1-c)/2/a0, -2*c/a0, (1-al)/a0)
     y = biq(y, *lp(11000, .62))
-    y = biq(y, *hp(75, .7)); y = biq(y, *shelf(260, 3.2, True))
+    y = biq(y, *hp(75, .7)); y = biq(y, *(shelf(330, 1.4, True) if fem else shelf(260, 3.2, True)))
     return y
 
 def render(lines, cfg=None, workers=2):
@@ -68,9 +72,15 @@ def write(path, y, peak_db=-3.0):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--lines"); ap.add_argument("--all", action="store_true"); ap.add_argument("--out", required=True)
-    ap.add_argument("--cfg", default="{}"); ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--cfg", default="{}"); ap.add_argument("--persona", action="store_true"); ap.add_argument("--singer"); ap.add_argument("--xpose", type=float); ap.add_argument("--workers", type=int, default=2)
     a = ap.parse_args(); t = time.time()
-    perf = load(); cfg = json.loads(a.cfg)
+    cfg = json.loads(a.cfg)
+    if a.persona: cfg["persona"] = 1
+    if a.singer and not a.persona:
+        sys.path.insert(0, os.path.join(ROOT, "engine")); import singer as SG
+        cfg = dict(SG.load(a.singer), **cfg)
+    if a.xpose is not None: cfg["xpose"] = a.xpose
+    perf = load(a.persona)
     if a.all:
         R = render(list(range(16)), cfg, a.workers)
         y = array.array("d", bytes(8 * int(math.ceil(perf["total"] * SR))))

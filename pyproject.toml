@@ -1,0 +1,65 @@
+[project]
+name = "concert"
+description = "bide: a song rendered from a physical voice model, modelled instruments and a hand-drawn film; repository checks."
+requires-python = ">=3.13"
+license = "MIT"
+dynamic = ["version"]
+dependencies = [
+    "markdown-it-py==4.3.0",
+    "packaging==26.4",
+    "pyyaml==6.0.4",
+]
+
+[project.scripts]
+doccheck = "repochecks.doccheck:main"
+tagcheck = "repochecks.tagcheck:main"
+
+[dependency-groups]
+dev = [
+    "coverage==7.17.5",
+    "numpy==2.5.5",
+    "pip-audit==2.10.1",
+    "pytest==9.2.0",
+    "pytest-timeout==2.4.0",
+    "ruff==0.17.6",
+    "scipy==1.18.1",
+]
+
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "code"
+path = "src/repochecks/tagcheck/version.py"
+expression = "PACKAGE_VERSION"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/repochecks"]
+
+[tool.ruff]
+# Existing code is exempt until increment I3 (docs/decisions/0015-transitional-compliance.md).
+extend-exclude = [
+    "band", "engine", "film", "mix", "music", "tools", "voice",
+    "tests/test_affricates.py", "tests/test_connected_speech.py",
+    "tests/test_lexicon_danny_boy.py", "tests/test_singer_profiles.py",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+timeout = 60
+
+[tool.coverage.run]
+# Measures src/ only: existing code is exempt from the floor until increment I4 (decision 0015).
+source = ["src"]
+branch = false
+parallel = true
+patch = ["subprocess"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+
+[tool.doccheck]
+policy_hashes = { "POLICY.md" = "b75f38167bb58130604f0590cd6d45b159080f94d06a1c22b67bda976ea4db80", "policy/javascript.md" = "2f78a0026ee61a7d365ee8ebd3a5ece220f13c94343930fc1dc68b9ab61e1c8f", "policy/knowledge.md" = "1ef6046c34b53f01bdc1929ea885c28496d4d9a504a7ddc918ad5b454abd3e43", "policy/pull-request.md" = "4b91c8a1f7083bd68f63546514c24fb60c5e555483629a08f9901548dab4219d", "policy/python.md" = "413f5b117c17f92b36002d072e15dc0accb352e68b1ab294e7662a64c41f0004", "policy/release.md" = "eadf5227a9884fa4ab4719ad70c9069e908c10e0cfeb04897777b0c66d66d792" }
