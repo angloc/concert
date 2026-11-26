@@ -9,6 +9,9 @@ SR = 44100
 PI4 = math.pi * .25
 CFG = dict(lev=.75, nv=.75, nu=.55, nm=.35, flut=11, ep=0.0, Kf=1.0, Ka=1.0, Ks=1.0, Kt=1.0, rd=0.0, jit=1.1, shim=1.5, hf=.19, wr=.022, gload=.45, K=1.0, jhi=1.3)
 
+import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), "engine")); from opts import LEGATO
+REL = bool(LEGATO.get("release"))
+
 def smooth_noise(n, dt, fc, rnd, amp):
     """two-pole low-passed random walk, unit-ish variance * amp."""
     a = 1 - math.exp(-2 * math.pi * fc * dt); x = y = 0.0; out = []
@@ -289,6 +292,9 @@ def render_line(perf, li, cfg=None, debug=None):
         if ga > .04: gate = max(0.0, 1 - (ga - .04) / .09); gate = gate * gate * (3 - 2 * gate)
         onset = min(1.0, max(0.0, (t - (t_on - .03)) / .07)); offs = min(1.0, max(0.0, (t_off + .05 - t) / .16))
         if t < t_on - .03 or t > t_off + .05: onset = 0.0
+        if REL:
+            u = min(1.0, max(0.0, (t - (t_off - .20)) / .30)); offs = 1 - u * u * (3 - 2 * u)
+            onset = min(1.0, max(0.0, (t - (t_on - .03)) / .07)) if t_on - .03 <= t <= t_off + .10 else 0.0
         lev = 10 ** ((db[fi] + arc[fi]) / 20.0)
         amp = lev * gate * (trans ** 1.2) * AV[fi] * onset * offs * (1 + sh) * (1 - .38 * fry * (1 if alt > 0 else 0))
         loudn = (db[fi] + 1.6 * arc[fi] + 12) / 12
@@ -331,11 +337,14 @@ def render_line(perf, li, cfg=None, debug=None):
         dP = max(0.0, Ps[k] - info["Pio"][k]) / 8000.0
         lev = 10 ** (db[k] / 20.0)
         vo = 1.0 if (t_on - .05 < times[k] < t_off + .12) else 0.0
+        if REL:
+            ub = min(1.0, max(0.0, (times[k] - t_off) / .35)); vo = (1 - ub * ub * (3 - 2 * ub)) if t_on - .05 < times[k] else 0.0
         dp15 = dP ** 1.5
         leak = .006 + .022 * bre[k] + ga
         # voiced breath noise (pulsing with the flow) + abduction noise
         fade = 1.0
         if times[k] > t_off - .05: fade = max(0.0, 1 - (times[k] - t_off + .05) / .22)
+        if REL and times[k] > t_off - .05: fade = max(0.0, 1 - (times[k] - t_off + .05) / .35)
         nv = vo * (.15 + .50 * bre[k]) * (lev ** .55) * .34 * cfg["nv"] * fade
         nu = vo * dp15 * math.sqrt(min(ga, .35) / .2) * .14 * cfg["nu"] if ga > .004 else 0.0
         ni = .085 * i0 * i0

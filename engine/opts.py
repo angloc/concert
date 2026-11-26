@@ -4,6 +4,6 @@
   cons:  consonant durations shrink with note length; no glottal dip at vowel-vowel word joins
   fit:   consonant gestures intrude at most 30% into neighbouring vowels   tail: line-final glide halved, long vowels prompt
   elide: stop + reduced vowel + N/L in a short non-initial syllable -> syllabic sonorant (moun-t'n)
-  goat:  OW sung as pure [o:] (OH) - stand-in for the accent file until the score is lexicon-driven"""
+  release: phrase ends fade over ~0.3 s with the glottis opening, then an aspiration tail (~0.35 s)"""
 import json, os
 LEGATO = json.loads(os.environ.get("BIDE_LEGATO", "{}") or "{}")

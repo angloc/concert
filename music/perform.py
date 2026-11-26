@@ -49,7 +49,7 @@ def segments(sc):
         syl=L["syl"]; info=[]
         for s in syl:
             ph=s["ph"]; vi=[i for i,p in enumerate(ph) if p in VOW][0]
-            info.append((ph[:vi],"OH" if (LEGATO.get("goat") and ph[vi]=="OW") else ph[vi],ph[vi+1:]))
+            info.append((ph[:vi],ph[vi],ph[vi+1:]))
         n=len(syl)
         onset_d=[[ON[p]*rnd.uniform(.94,1.08) for p in info[i][0]] for i in range(n)]
         if LEGATO.get("cons"):

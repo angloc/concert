@@ -168,6 +168,8 @@ class Score:
                 last = (i + 1 >= n)
                 te = g["t1"] + (.02 if not last else -.05)
                 for k in BODY: T[k].to(te - w * (1.0 if k not in ("LP",) else 1.15), te, v2[k])
+        if LEGATO.get("release"):                 # phrase end: the glottis opens as the breath is let go
+            te = S[-1]["t1"]; T["GA"].add(te - .12, te + .10, te + .30, te + .40, .16)
         # legato vowel-vowel joins at word boundaries: tiny glottal dip so words stay separate
         for a in range(1, len(nuc)):
             i = nuc[a]
