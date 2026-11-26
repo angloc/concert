@@ -51,23 +51,23 @@ class Bumps:
     """max / min envelope over independent rise-hold-fall gestures."""
     __slots__ = ("rest", "b", "mode")
     def __init__(self, rest, mode): self.rest = rest; self.b = []; self.mode = mode
-    def add(self, r0, r1, f0, f1, v):
+    def add(self, r0, r1, f0, f1, v, pw=2.2):
         if r1 < r0 + .004: r1 = r0 + .004
         if f0 < r1: f0 = r1
         if f1 < f0 + .004: f1 = f0 + .004
-        self.b.append((r0, r1, f0, f1, v))
+        self.b.append((r0, r1, f0, f1, v, pw))
     def sample(self, times):
         bs = sorted(self.b); out = []; R = self.rest; n = len(bs); i = 0; act = []; mx = self.mode == "max"; mul = self.mode == "mul"; fast = self.mode == "min"
         for t in times:
             while i < n and bs[i][0] <= t: act.append(bs[i]); i += 1
             if act: act = [b for b in act if b[3] > t]
             v = R
-            for r0, r1, f0, f1, x in act:
+            for r0, r1, f0, f1, x, pw in act:
                 if t < r1: u = (t - r0) / (r1 - r0)
                 elif t < f0: u = 1.0
                 else:
                     u = (f1 - t) / (f1 - f0)
-                    if fast: u = u ** 2.2; v = min(v, R + (x - R) * u); continue
+                    if fast: u = u ** pw; v = min(v, R + (x - R) * u); continue
                 u = u * u * u * (10 - u * (15 - 6 * u)); y = R + (x - R) * u
                 if mx:
                     if y > v: v = y
@@ -83,7 +83,7 @@ class _Clamp:
 class _ClampTrack:
     def __init__(self, tr, lo, hi): self.tr = tr; self.c = lambda x: min(hi, max(lo, x))
     def to(self, ts, te, v, *a): self.tr.to(self.c(ts), self.c(te), v, *a)
-    def add(self, r0, r1, f0, f1, v): self.tr.add(self.c(r0), self.c(r1), self.c(f0), self.c(f1), v)
+    def add(self, r0, r1, f0, f1, v, *a): self.tr.add(self.c(r0), self.c(r1), self.c(f0), self.c(f1), v, *a)
 
 def shape(name): return dict(SHAPES[name])
 def mix(a, b, u): return {k: a[k] + (b[k] - a[k]) * u for k in BODY}
@@ -263,9 +263,10 @@ class Score:
         # ---- fricatives
         if p in ("S", "Z"):
             ttp(t0 - .12, t0 - .03, 14.92, .42)
-            T["cTT"].add(t0 - .080, t0 + .020, t1 - .012, t1 + .100, .30 if p == "S" else .33)
+            T["cTT"].add(t0 - .080, t0 + .020, t1 - .012, t1 + .100, .30 if p == "S" else .33, float(LEGATO.get("fricrel") or 2.2))
             body({"J": .10, "LA": float(LEGATO["siblip"]) if LEGATO.get("siblip") else min(1.35, max(.95, vsh["LA"])), "X": max(vsh["X"], .35) if vsh["X"] > 0 else vsh["X"] * .5 + .15}, lead=.06, at=.3)
-            if p == "S": T["GA"].add(t0 - .035, t0 + .35 * d, t1 - (.055 if not nuv else 0), t1 + (.018 if not nuv else .05), .24)
+            if p == "S" and LEGATO.get("fricrel") and not nuv: T["GA"].add(t0 - .035, t0 + .35 * d, t1 - .055, t1 - .005, .24)   # voicing returns as the tongue lets go: the hiss tapers
+            elif p == "S": T["GA"].add(t0 - .035, t0 + .35 * d, t1 - (.055 if not nuv else 0), t1 + (.018 if not nuv else .05), .24)
             else: T["GA"].add(t0 - .03, t0 + .4 * d, t1 - .04, t1 + .02, .055)
         if p in ("CH", "JH"):
             # affricate: postalveolar closure released into an SH-like channel for the rest of the segment
