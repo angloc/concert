@@ -13,6 +13,6 @@ Provenance: refactored from the repository's own documents on the `legato-experi
 * [Open questions](open-questions.md) - unresolved questions and known risks; read before planning work
 * [Platforms](platforms.md) - the delivered file and the browsers it targets
 * [Voice model](voice-model.md) - how the physical model of the singing voice works, and the intelligibility evidence for it
-* [Singer profile](singer-profile.md) - who is singing, independent of any song: profile fields built and designed, personas as overlays
+* [Singer profile](singer-profile.md) - who is singing, independent of any song: the profile fields that exist, capacity today, personas as overlays
 * [Performance](performance/index.md) - feasibility of a sung performance, compromises, timing, model corrections and listening verdicts
 * [Film](film/index.md) - the drawing APIs for people, places, weather and the red thread

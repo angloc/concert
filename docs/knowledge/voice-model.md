@@ -16,7 +16,7 @@ The voice is a simulated vocal tract: a tube of air from the glottis through the
 - [voice/glottis.py](../../voice/glottis.py) makes the glottal flow pulses (Liljencrants-Fant, shape set by one parameter, Rd).
 - [voice/engine.py](../../voice/engine.py) renders one sung line: gestures, area function, aerodynamics, source and tube, with jitter, shimmer and breath that pulses with the source.
 - [voice/fit.py](../../voice/fit.py) found the vowel shapes in `voice/shapes.json` by searching for tongue and lip positions whose resonances match each vowel's target formants for a 16.3 cm tract.
-- [voice/tuning.py](../../voice/tuning.py) opens the jaw on high notes so that F1 stays above the pitch; this works for front vowels only.
+- [voice/tuning.py](../../voice/tuning.py) opens the jaw on high notes so that F1 stays above the pitch; this works only for the vowels whose F1 the jaw raises (AE, EH, ER, EY, IH, IY).
 - [voice/persona.py](../../voice/persona.py) sets per-line voice settings for the Danny Boy personas (middle-aged, ageing, ghost) on top of the female singer profile, raised to the song's key.
 
 ## Intelligibility evidence
