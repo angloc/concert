@@ -18,8 +18,8 @@ bide renders a song from nothing: a physical model of a singing voice, modelled 
 ## Commands
 - Render one line of the raw voice: `uv run concert-sing --lines 6 --out build/line6.wav`. Add `--persona` for the Danny Boy personas.
 - Experiment switches: set `BIDE_LEGATO` to a JSON object, for example `BIDE_LEGATO='{"keepcons": true}'`. See `src/concert/diction/opts.py`.
-- Stage commands are console scripts: `concert-perform`, `concert-timeline`, `concert-sing`, `concert-band`, `concert-mix`, `concert-flac`, `concert-page`. Run each through `uv run`. `make package` runs them in order.
-- Refit vowel shapes: `uv run concert-fit [name ...]`.
+- Stage commands are console scripts: `concert-perform`, `concert-timeline`, `concert-fit`, `concert-sing`, `concert-band`, `concert-mix`, `concert-flac`, `concert-page`. Run each through `uv run`. `make package` runs them in order.
+- Fit a singer's vowel shapes: `uv run concert-fit --singer <name> [sound ...]`. `make package` fits `female`. Fit `baritone` before a render without `--persona` or `--singer`.
 - Review a render: `uv run concert-preflight build`.
 - Capture stills: `uv run concert-shot --at 10,40 --out build/x.jpg`. Draw a test sheet: `--fn worldSheet --k 5`.
 - Export a video excerpt: `uv run concert-record build/x.mp4 build/song.flac --from 10 --to 20`. `make export` exports the whole film.

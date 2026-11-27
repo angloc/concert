@@ -3,6 +3,7 @@
 import unittest
 
 from concert.voice import gest as GE
+from concert.voice import shapes as SH
 
 
 def build(cons):
@@ -22,7 +23,7 @@ def build(cons):
         )
         t += d
     perf = {"cr": 200, "f0": [150.0] * 400}
-    return GE.Score(segs, perf), segs[1]
+    return GE.Score(segs, perf, SH.load("female")), segs[1]
 
 
 class Affricates(unittest.TestCase):

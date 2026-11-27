@@ -59,6 +59,7 @@ package:
 	mkdir -p $(DIST) $(BUILD)
 	$(UV) concert-perform
 	$(UV) concert-timeline
+	$(UV) concert-fit --singer female
 	$(UV) concert-sing --all --persona --out $(BUILD)/voice.wav
 	$(UV) concert-band
 	$(UV) concert-mix $(BUILD)/voice.wav -o $(BUILD)/mix.wav

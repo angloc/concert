@@ -19,6 +19,7 @@ from concert.diction import singer as SG
 from concert.performance import perform as PF
 from concert.voice import engine as EN
 from concert.voice import persona as PS
+from concert.voice import shapes as SH
 
 SR = EN.SR
 
@@ -43,9 +44,9 @@ _P = None
 
 
 def job(a):
-    """Render one line in a worker process: (line, first sample, samples, seconds taken)."""
+    """Render one line in a worker process, for `a` = (line, settings, singer): (line, first sample, samples, seconds taken)."""
     global _P
-    li, cfg = a
+    li, cfg, singer = a
     if _P is None:
         _P = load(bool(cfg.get("persona")))
     if cfg.get("persona"):
@@ -54,7 +55,7 @@ def job(a):
     with contextlib.suppress(OSError):
         os.nice(10)
     t = time.time()
-    n0, y = EN.render_line(_P, li, cfg)
+    n0, y = EN.render_line(_P, li, cfg, shapes=SH.load(singer))
     y = EN_post(y, (cfg or {}).get("mic", 0))
     return li, n0, y, time.time() - t
 
@@ -131,13 +132,13 @@ def EN_post(y, fem=0):
     return y
 
 
-def render(lines, cfg=None, workers=2):
-    """Render `lines` with settings `cfg`, in up to two processes; returns line -> job result."""
+def render(lines, cfg=None, workers=2, singer=SG.DEFAULT):
+    """Render `lines` with settings `cfg` and the shapes of `singer`, in up to two processes; returns line -> job result."""
     if len(lines) == 1 or workers == 1:
-        res = [job((l, cfg)) for l in lines]
+        res = [job((l, cfg, singer)) for l in lines]
     else:
         with Pool(min(workers, len(lines), 2)) as p:
-            res = list(p.imap_unordered(job, [(l, cfg) for l in lines]))
+            res = list(p.imap_unordered(job, [(l, cfg, singer) for l in lines]))
     return {r[0]: r for r in res}
 
 
@@ -175,9 +176,12 @@ def main() -> None:
         cfg = dict(SG.load(a.singer), **cfg)
     if a.xpose is not None:
         cfg["xpose"] = a.xpose
+    singer = PS.SINGER if a.persona else (a.singer or SG.DEFAULT)
+    # fail before rendering when the singer's shapes have not been fitted
+    SH.load(singer)
     perf = load(a.persona)
     if a.all:
-        R = render(list(range(16)), cfg, a.workers)
+        R = render(list(range(16)), cfg, a.workers, singer)
         y = array.array("d", bytes(8 * math.ceil(perf["total"] * SR)))
         for li, n0, s, dt in R.values():
             for i, v in enumerate(s):
@@ -186,7 +190,7 @@ def main() -> None:
                     y[k] += v
     else:
         ls = [int(x) for x in a.lines.split(",")]
-        R = render(sorted(set(ls)), cfg, a.workers)
+        R = render(sorted(set(ls)), cfg, a.workers, singer)
         y = array.array("d")
         i = 0
         while i < len(ls):

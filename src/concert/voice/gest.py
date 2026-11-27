@@ -1,17 +1,10 @@
 """gest.py - phoneme segments -> articulator trajectories (gestural score with per-articulator timing)."""
 
-import json
 import math
-import os
-from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
 from concert.diction.opts import LEGATO
 
 BODY = ["J", "X", "Y", "TR", "TT", "BP", "LA", "LP", "LH", "EP"]
-_SJ = json.loads(Path(os.path.join(HERE, "shapes.json")).read_text())
-SHAPES = {k: v["art"] for k, v in _SJ.items()}
-F1OF = {k: v["F"][0][0] for k, v in _SJ.items()}
 OPENTO = {
     "IY": "IH",
     "Y": "IH",
@@ -26,14 +19,15 @@ OPENTO = {
 }
 
 
-def opened(name, f0):
-    """on high notes the mouth opens so that the first formant stays above the pitch."""
-    s = dict(SHAPES[name])
+def opened(sh, name, f0):
+    """Posture `name` from shape table `sh`; on high notes the mouth opens so that the first formant stays above the pitch."""
+    s = dict(sh[name]["art"])
     if f0 and name in OPENTO:
-        need = 1.20 * f0 - F1OF[name]
+        F1, F1o = sh[name]["F"][0][0], sh[OPENTO[name]]["F"][0][0]
+        need = 1.20 * f0 - F1
         if need > 0:
-            b = SHAPES[OPENTO[name]]
-            u = min(0.75, need / max(60.0, F1OF[OPENTO[name]] - F1OF[name]))
+            b = sh[OPENTO[name]]["art"]
+            u = min(0.75, need / max(60.0, F1o - F1))
             s = {k: s[k] + (b[k] - s[k]) * u for k in BODY}
     return s
 
@@ -221,9 +215,9 @@ class _ClampTrack:
         self.tr.add(self.c(r0), self.c(r1), self.c(f0), self.c(f1), v, *a)
 
 
-def shape(name):
-    """A copy of the fitted articulator posture `name`."""
-    return dict(SHAPES[name])
+def shape(sh, name):
+    """A copy of the fitted articulator posture `name` from shape table `sh`."""
+    return dict(sh[name]["art"])
 
 
 def mix(a, b, u):
@@ -231,36 +225,38 @@ def mix(a, b, u):
     return {k: a[k] + (b[k] - a[k]) * u for k in BODY}
 
 
-def vowel_targets(g, nxt, line):
-    """list of (name_or_shape, fraction) for the nucleus."""
+def vowel_targets(sh, g, nxt, line):
+    """The nucleus `g`'s (posture, glide posture or None), from shape table `sh`."""
     p = g["ph"]
     fz = g.get("f0", 0)
     if p in DIPH:
         a, b, u = DIPH[p]
-        A = opened(a, fz)
+        A = opened(sh, a, fz)
         if p == "AY" and LEGATO.get("pricefront"):
-            A = mix(A, opened("AE", fz), float(LEGATO["pricefront"]))
-        return A, mix(A, opened(b, fz), u)
+            A = mix(A, opened(sh, "AE", fz), float(LEGATO["pricefront"]))
+        return A, mix(A, opened(sh, b, fz), u)
     if p == "AH":
-        s = opened("AX" if g.get("weak") else "AH", fz)
+        s = opened(sh, "AX" if g.get("weak") else "AH", fz)
     elif p == "OH":
-        s = opened("O", fz)  # pure [o:] (Irish GOAT)
+        s = opened(sh, "O", fz)  # pure [o:] (Irish GOAT)
     elif p == "AO" and nxt and nxt["ph"] == "R":
-        s = opened("OR", fz)
-    elif p in SHAPES:
-        s = opened(p, fz)
+        s = opened(sh, "OR", fz)
+    elif p in sh:
+        s = opened(sh, p, fz)
     else:
-        s = opened("AX", fz)
+        s = opened(sh, "AX", fz)
     if g.get("weak") and p not in ("AH",):
-        s = mix(s, shape("AX"), 0.18)
+        s = mix(s, shape(sh, "AX"), 0.18)
     return s, None
 
 
 class Score:
     """builds all tracks for one line."""
 
-    def __init__(self, segs, perf, seed=0):
+    def __init__(self, segs, perf, shapes, seed=0):
+        """Tracks for the segments `segs` of one line of `perf`, sung from the shape table `shapes`."""
         self.segs = segs
+        self.sh = shapes
         # a final -ing is sung ON the ng: the tongue closes early and the note hums
         a, b = segs[-2], segs[-1]
         if b["ph"] == "NG" and a["ph"] == "IH":
@@ -278,7 +274,7 @@ class Score:
                 ]
                 g["f0"] = sorted(q)[int(len(q) * 0.6)] if q else 0
         first = next(g for g in segs if g["role"] == "nuc")
-        s0, _ = vowel_targets(first, None, None)
+        s0, _ = vowel_targets(self.sh, first, None, None)
         self.T = {k: Track(s0[k]) for k in BODY}
         for k, v in {"sTT": 14.6, "hTT": 0.25, "sTD": 9.4, "hTD": 0.45}.items():
             self.T[k] = Track(v)
@@ -303,7 +299,7 @@ class Score:
         for a, i in enumerate(nuc):
             g = S[i]
             nx = S[i + 1] if i + 1 < n else None
-            v1, v2 = vowel_targets(g, nx, None)
+            v1, v2 = vowel_targets(self.sh, g, nx, None)
             if v2 is not None and LEGATO.get("tailglide") and a == len(nuc) - 1:
                 v2 = mix(v1, v2, 0.5)
             j = i
@@ -349,9 +345,9 @@ class Score:
                 d = g["t1"] - g["t0"]
                 nv = None
                 if a + 1 < len(nuc):
-                    nv = vowel_targets(S[nuc[a + 1]], None, None)[0]
+                    nv = vowel_targets(self.sh, S[nuc[a + 1]], None, None)[0]
                 og = OFFG.get(g["ph"])
-                o = shape(og[0]) if og else v1
+                o = shape(self.sh, og[0]) if og else v1
                 ou = og[1] if og else 0
                 if d > 0.16:
                     for k in ("X", "Y", "J", "TR", "LA"):
@@ -421,8 +417,8 @@ class Score:
         vi = next(
             (h for h in (S[i + 1 :] if on else S[i::-1]) if h["role"] == "nuc"), None
         )
-        vs = vowel_targets(vi, None, None) if vi else None
-        vsh = (vs[0] if on else (vs[1] or vs[0])) if vs else shape("AX")
+        vs = vowel_targets(self.sh, vi, None, None) if vi else None
+        vsh = (vs[0] if on else (vs[1] or vs[0])) if vs else shape(self.sh, "AX")
         nextvoiced = nxt is not None and nxt["role"] == "nuc"
 
         def W(tgt, w):
@@ -540,7 +536,7 @@ class Score:
         if p in ("B", "D", "G"):
             T["VST"].add(t0 - 0.02, t0 + 0.01, t0 + cl, t0 + cl + 0.02, 1.0)
             if fin:
-                for k, v in shape("AX").items():
+                for k, v in shape(self.sh, "AX").items():
                     if k in ("J", "X", "Y", "TR"):
                         T[k].to(t0 + cl, t0 + cl + 0.05, v)
                 if LEGATO.get("finalburst"):
@@ -661,7 +657,7 @@ class Score:
         # ---- sonorants
         if p == "L":
             if not on:
-                tgt = shape("LD")
+                tgt = shape(self.sh, "LD")
                 body({k: tgt[k] for k in ("X", "Y", "TR", "J")}, lead=0.09, at=0.45)
             else:
                 body(
@@ -683,7 +679,7 @@ class Score:
             )
             T["LAT"].add(t0 - 0.05, t0 + 0.02, t1 - 0.02, t1 + 0.04, 0.6)
         if p == "R":
-            tgt = shape("R" if on else "ER")
+            tgt = shape(self.sh, "R" if on else "ER")
             body(
                 {k: tgt[k] for k in (BODY if on else [k for k in BODY if k != "LA"])},
                 lead=0.07 if on else 0.12,
@@ -691,6 +687,6 @@ class Score:
             )
 
         if p == "W":
-            body(shape("W"), lead=0.07, at=0.40)
+            body(shape(self.sh, "W"), lead=0.07, at=0.40)
         if p == "Y":
-            body(shape("Y"), lead=0.06, at=0.40)
+            body(shape(self.sh, "Y"), lead=0.06, at=0.40)
