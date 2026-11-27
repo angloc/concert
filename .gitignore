@@ -22,6 +22,6 @@ __pycache__/
 .coverage
 .coverage.*
 
-# Reports the build writes beside its sources
-mix/report*.json
-band/events.json
+# Node toolchain and packages that make install fetches
+.tools/
+baseline/node_modules/

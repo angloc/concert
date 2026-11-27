@@ -6,7 +6,7 @@ description: Corrections to the physics and timing of the voice model, which are
 
 # Model corrections
 
-A model correction fixes the physics or timing of the voice, so it applies to every song and every voice without a decision per song (see the mandates in [AGENTS.md](../../../AGENTS.md)). Corrections are switches in `BIDE_LEGATO`, read by [engine/opts.py](../../../engine/opts.py). Setting a default-on correction to false reproduces builds made before it.
+A model correction fixes the physics or timing of the voice, so it applies to every song and every voice without a decision per song (see the mandates in [AGENTS.md](../../../AGENTS.md)). Corrections are switches in `BIDE_LEGATO`, read by [src/concert/diction/opts.py](../../../src/concert/diction/opts.py). Setting a default-on correction to false reproduces builds made before it.
 
 ## On by default
 

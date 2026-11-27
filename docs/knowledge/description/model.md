@@ -12,7 +12,7 @@ Not yet built. This is the approved design; the build plan is increments I11 to 
 
 Each thing that varies between renders is described once, as data, at the weight of ordinary musical notation. A song is marked-up words and a tune, plus zero or more instrumental scores. Nothing in a song file is there only because the engine needs it. The engine, voice, band and mix stay song-neutral ([decision 0007](../../decisions/0007-songs-and-singers-in-folders.md)).
 
-Today the song, its interpretation and its arrangement are Python code: the tune, syllables, phones, chords and moods in `music/score.py`; the interpretation tables in `music/perform.py`; the personas in `voice/persona.py`; the arrangement in `band/arrange.py`. The engine is mostly song-neutral; this description layer is what is missing.
+Today the song, its interpretation and its arrangement are Python code: the tune, syllables, phones, chords and moods in `src/concert/performance/score.py`; the interpretation tables in `src/concert/performance/perform.py`; the personas in `src/concert/voice/persona.py`; the arrangement in `src/concert/band/arrange.py`. The engine is mostly song-neutral; this description layer is what is missing.
 
 ## Entities
 
@@ -69,9 +69,9 @@ A score check runs before rendering: bar lengths against the metre, notes outsid
 
 | Now | In the description model |
 | --- | --- |
-| `music/score.py`: tune, syllables, ARPAbet phones, `CH`, moods, `FEEL` | song score; phones from the lexicon; chord line in the score; moods and stretches in the performance |
-| `music/perform.py`: `LATE`, `CUT`, `VIB`, `ARC`, `COL`, line-specific code | rules, presets and overrides in the performance |
-| `voice/persona.py` | personas as presets over the singer, spans in the performance |
-| `band/arrange.py` | arrangement scores, player model and player parameters |
-| absolute seconds in `music/score.py`, `band/arrange.py`, `mix/mix.py` | bars, through the tempo map |
+| `src/concert/performance/score.py`: tune, syllables, ARPAbet phones, `CH`, moods, `FEEL` | song score; phones from the lexicon; chord line in the score; moods and stretches in the performance |
+| `src/concert/performance/perform.py`: `LATE`, `CUT`, `VIB`, `ARC`, `COL`, line-specific code | rules, presets and overrides in the performance |
+| `src/concert/voice/persona.py` | personas as presets over the singer, spans in the performance |
+| `src/concert/band/arrange.py` | arrangement scores, player model and player parameters |
+| absolute seconds in `src/concert/performance/score.py`, `src/concert/band/arrange.py`, `src/concert/mix/mix.py` | bars, through the tempo map |
 | `singers/<name>/profile.json` engine settings | measurable quantities; engine settings derived ([decision 0020](../../decisions/0020-measurable-singer-profiles.md)) |

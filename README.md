@@ -12,11 +12,11 @@ The singer is a woman, middle-aged in the first verse, ageing through the second
 
 | part | how | where |
 |---|---|---|
-| **voice** | a vocal tract simulated as a tube of air: glottis, throat, mouth, nose and lips, moved by a jaw, a tongue, lips and a velum | `voice/` |
+| **voice** | a vocal tract simulated as a tube of air: glottis, throat, mouth, nose and lips, moved by a jaw, a tongue, lips and a velum | `src/concert/voice/` |
 | **singers, accent, song** | singer profiles, an Irish accent over lexical sets, the Danny Boy lexicon and key | `singers/`, `accents/`, `songs/`, `key.json` |
-| **performance** | melody, words, connected speech, breaths, vibrato, rubato, loudness | `music/`, `engine/` |
-| **band** | a plucked-string harp, bowed strings, a low whistle and far-off pipes, all modelled | `band/` |
-| **mix** | a stone room, ducking, loudness, and a FLAC encoder | `mix/` |
+| **performance** | melody, words, connected speech, breaths, vibrato, rubato, loudness | `src/concert/performance/`, `src/concert/diction/` |
+| **band** | a plucked-string harp, bowed strings, a low whistle and far-off pipes, all modelled | `src/concert/band/` |
+| **mix** | a stone room, ducking, loudness, and a FLAC encoder | `src/concert/mix/` |
 | **film** | a WebGL2 engine that repaints every sheet in pastel, pencil and graphite on toothy paper, 12 drawings a second | `film/engine.js` |
 | **people and places** | poseable drawings of a mother and her son across a lifetime; glens, weather, a cottage, a thorn tree, the red thread | `film/cast.js`, `film/world.js` |
 | **19 shots** | staged and timed to the sung words, lyrics handwritten as they are sung | `film/scenes/` |
@@ -37,7 +37,9 @@ The thread is the pencil line itself: the first mark on the paper and the last o
 
 ## Keys
 
-Space pauses. Left and right skip five seconds. R restarts. F is fullscreen. M mutes.
+Space pauses. Left and right skip five seconds. R restarts. F is fullscreen. M mutes. A screen reader hears what each key did.
+
+The page shows its version in the bottom right-hand corner.
 
 ## Developing
 
@@ -45,10 +47,11 @@ Work in the devcontainer (`.devcontainer/`), or in a dedicated virtual machine w
 
 | Target | What it does |
 |---|---|
-| `make install` | installs uv and the locked Python environment; refuses to run outside CI, a container or a dedicated machine |
-| `make verify` | the check to run before finishing any change: formatting, lint, vulnerability audit, tests, coverage and the documentation check |
+| `make install` | installs uv and the locked Python environment, Playwright's Chromium, Firefox and WebKit, PulseAudio, and the pinned Node toolchain of the Baseline check; refuses to run outside CI, a container or a dedicated machine |
+| `make verify` | the check to run before finishing any change: formatting, lint, vulnerability audits, tests (the page end to end in Chromium, Firefox and WebKit among them), the Baseline 2025 check of the page, coverage and the documentation check |
 | `make package` | builds the page from nothing into `dist/bide_<version>.html` with `SHA256SUMS`; takes a few minutes |
 | `make test` | packages, then runs the tests |
+| `make export` | packages, then draws the whole film in headless Chromium and writes it with the song to `build/bide.mp4` (1920×1080, 24 fps); takes hours without a GPU |
 | `make fmt` | formats the Python code |
 | `make docs-check` | checks the knowledge base, decision records, plan and links |
 

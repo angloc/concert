@@ -17,12 +17,12 @@ The profile supplies two things to the design for planning a performance within 
 
 ## What is built
 
-[`singers/<name>/profile.json`](../../singers/) holds a name, a description, the voice settings and the microphone colouring. [engine/singer.py](../../engine/singer.py) loads it. Two profiles exist:
+[`singers/<name>/profile.json`](../../singers/) holds a name, a description, the voice settings and the microphone colouring. [src/concert/diction/singer.py](../../src/concert/diction/singer.py) loads it. Two profiles exist:
 
 - `baritone`: the original bide singer, a 16.3 cm male tract (K 1.0) with the source calibrated for male pitch;
 - `female`: the Danny Boy re-casting, a uniformly scaled male tract (K 0.84), a lighter source and formant tuning (`ftune` 1.2). It is not female anatomy.
 
-Transposition is not a singer property; it stays with the song key (`key.json`). Personas are overlays on a profile: [voice/persona.py](../../voice/persona.py) builds the Danny Boy singer from `singers/female` and changes it by line for the middle-aged, ageing and ghost sections.
+Transposition is not a singer property; it stays with the song key (`key.json`). Personas are overlays on a profile: [src/concert/voice/persona.py](../../src/concert/voice/persona.py) builds the Danny Boy singer from `singers/female` and changes it by line for the middle-aged, ageing and ghost sections.
 
 ## What the model fixes today
 
@@ -35,7 +35,7 @@ Transposition is not a singer property; it stays with the song key (`key.json`).
 | Setting | Controls |
 |---|---|
 | `K` | tract length: formants scale by 1/K |
-| `voice/shapes.json`, refitted by `voice/fit.py` | vowel postures for any set of formant targets |
+| `src/concert/voice/shapes.json`, refitted by `src/concert/voice/fit.py` | vowel postures for any set of formant targets |
 | `LH`, `EP` articulators | larynx lowering and epilarynx width |
 | `rd`, `nv`, `nu`, `nm`, `jit`, `shim`, `flut`, `jhi` | source shape, noise and irregularity |
 | `xpose`, `xvib`, `xam`, `aflut` | transposition, vibrato and amplitude modulation (song or persona, not singer) |
@@ -43,11 +43,11 @@ Transposition is not a singer property; it stays with the song key (`key.json`).
 
 ## Capacity today
 
-Capacity is not yet per singer. Every singer shares the same gesture time constants, and no profile states a range, registers or breath. Articulator approach speed is set per gesture by a stiffness (`dv`) and release curves (the `u**2.2` stop release, `fricrel`), and consonant durations by `music/perform.py`. These are the numbers an agility field would bound. The profile fields that could make capacity per singer are listed in [open questions](open-questions.md).
+Capacity is not yet per singer. Every singer shares the same gesture time constants, and no profile states a range, registers or breath. Articulator approach speed is set per gesture by a stiffness (`dv`) and release curves (the `u**2.2` stop release, `fricrel`), and consonant durations by `src/concert/performance/perform.py`. These are the numbers an agility field would bound. The profile fields that could make capacity per singer are listed in [open questions](open-questions.md).
 
 ## Measurable profile
 
-Not yet built (increment I17). A profile is to state measurable quantities: a formant table per vowel, pitch range, register transitions, vibrato rate and extent, breathiness and agility. Engine settings are derived from those quantities by fitting, as `voice/fit.py` derives vowel shapes from formant targets. A persona becomes a preset of a few named perceptual controls, such as tension, breathiness and age. A profile stated this way can later be measured from recordings of a consenting singer (deferred increment I18). Decision: [0020](../decisions/0020-measurable-singer-profiles.md).
+Not yet built (increment I17). A profile is to state measurable quantities: a formant table per vowel, pitch range, register transitions, vibrato rate and extent, breathiness and agility. Engine settings are derived from those quantities by fitting, as `src/concert/voice/fit.py` derives vowel shapes from formant targets. A persona becomes a preset of a few named perceptual controls, such as tension, breathiness and age. A profile stated this way can later be measured from recordings of a consenting singer (deferred increment I18). Decision: [0020](../decisions/0020-measurable-singer-profiles.md).
 
 ## Personas
 

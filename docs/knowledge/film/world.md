@@ -7,7 +7,7 @@ description: The API for drawing land, weather, houses, growing things and the r
 # BIDE.world — land, weather, houses, growing things, wool
 
 `const W = BIDE.world`. Everything is sheet space 1920×1080, deterministic in `t`, and draws straight on the painter `p`.
-Look at any of it: `node tools/shot.mjs --fn worldSheet --k 5 --cols 1 --w 1200 --out build/x.jpg` (index at the bottom).
+Look at any of it: `uv run concert-shot --fn worldSheet --k 5 --cols 1 --w 1200 --out build/x.jpg` (index at the bottom).
 
 ## Options every part understands
 | option | meaning |
@@ -77,4 +77,4 @@ Whole places issue in about 2–10 ms, 170–290 masses, 500–1100 lines. Extra
 ## Picture index (`worldSheet --k`)
 0 glen + call · 1 yard summer · 2 yard autumn · 3 meadow · 4 snow valley · 5 thorn hill, sun · 6 thorn hill, shadow · 7 doorway · 8 room by fire · 9 room in ruin · 10 under · 11 under, warm · 12 night · 13 road home · 14 ruin yard · 15 graveside · 16 graveside in colour · 17 thorn through the year · 18 roses · 19 wool · 20 cottages · 21 wall, gate, dead heads
 
-Motion pages (k = seconds): `motionA` wind on tree, grass, hay · `motionB` the rose and petals · `motionC` fire, smoke, snow · `motionD` rope, ball, floating thread, spelling · `motionE` the call crossing the glen. Example: `node tools/shot.mjs --fn motionB --k 0.6,0.9,1.1,1.2,1.4,2 --cols 3 --w 600 --out build/m.jpg`
+Motion pages (k = seconds): `motionA` wind on tree, grass, hay · `motionB` the rose and petals · `motionC` fire, smoke, snow · `motionD` rope, ball, floating thread, spelling · `motionE` the call crossing the glen. Example: `uv run concert-shot --fn motionB --k 0.6,0.9,1.1,1.2,1.4,2 --cols 3 --w 600 --out build/m.jpg`

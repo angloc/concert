@@ -8,7 +8,7 @@ description: The ABC and MusicXML round trip of Danny Boy - method, what survive
 
 ## Method
 
-Danny Boy was written out as ABC 2.1 from the current data: the melody, syllables and chord table from `music/score.py`, and the harp part from `band/arrange.py`. The harp's times in seconds were mapped back to metric time through the singer's own clock and rounded to sixteenths. Dynamics and hairpins came from each line's loudness range, breath marks from each line's breath, and a fermata on the last note. The file had four voices: voice with words, harp on two staves, and a chord line on invisible rests. It held 180 sung notes, 401 harp notes, 14 harp harmonics and 64 chord symbols, and was 5.5 KB.
+Danny Boy was written out as ABC 2.1 from the current data: the melody, syllables and chord table from `src/concert/performance/score.py`, and the harp part from `src/concert/band/arrange.py`. The harp's times in seconds were mapped back to metric time through the singer's own clock and rounded to sixteenths. Dynamics and hairpins came from each line's loudness range, breath marks from each line's breath, and a fermata on the last note. The file had four voices: voice with words, harp on two staves, and a chord line on invisible rests. It held 180 sung notes, 401 harp notes, 14 harp harmonics and 64 chord symbols, and was 5.5 KB.
 
 Each reading was compared with the source data note by note.
 
@@ -38,6 +38,6 @@ The score check is meant to catch errors of this kind.
 
 ## Other findings
 
-- The chord table in `music/score.py` and the arrangement's own comments disagree in places: line 1 is `Eb/G … Fm7 Bb7` in one and `Eb/Bb … Fm9 Bb7sus` in the other. See [open questions](../open-questions.md).
+- The chord table in `src/concert/performance/score.py` and the arrangement's own comments disagree in places: line 1 is `Eb/G … Fm7 Bb7` in one and `Eb/Bb … Fm9 Bb7sus` in the other. See [open questions](../open-questions.md).
 - Lines 7 and 15 have rubato written into the note lengths: dotted sixteenths, and notes that cross the barline. See [open questions](../open-questions.md).
 - Research on language models and music mostly uses ABC, and also reports that models make rhythm and format errors in it.

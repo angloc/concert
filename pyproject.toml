@@ -11,14 +11,28 @@ dependencies = [
 ]
 
 [project.scripts]
+concert-band = "concert.band.render:main"
+concert-fit = "concert.voice.fit:main"
+concert-flac = "concert.mix.flac:main"
+concert-mix = "concert.mix.mix:main"
+concert-page = "concert.page.build:main"
+concert-perform = "concert.performance.perform:main"
+concert-preflight = "concert.review.preflight:main"
+concert-record = "concert.capture.record:main"
+concert-shot = "concert.capture.shot:main"
+concert-sing = "concert.voice.sing:main"
+concert-timeline = "concert.page.timeline:main"
+baselinecheck = "repochecks.baseline:main"
 doccheck = "repochecks.doccheck:main"
 tagcheck = "repochecks.tagcheck:main"
 
 [dependency-groups]
 dev = [
     "coverage==7.17.5",
+    "imageio-ffmpeg==0.6.0",
     "numpy==2.5.5",
     "pip-audit==2.10.1",
+    "playwright==1.63.0",
     "pytest==9.2.0",
     "pytest-timeout==2.4.0",
     "ruff==0.17.6",
@@ -35,24 +49,23 @@ path = "src/repochecks/tagcheck/version.py"
 expression = "PACKAGE_VERSION"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/repochecks"]
-
-[tool.ruff]
-# Existing code is exempt until increment I3 (docs/decisions/0015-transitional-compliance.md).
-extend-exclude = [
-    "band", "engine", "film", "mix", "music", "tools", "voice",
-    "tests/test_affricates.py", "tests/test_connected_speech.py",
-    "tests/test_lexicon_danny_boy.py", "tests/test_singer_profiles.py",
-]
+packages = ["src/concert", "src/repochecks"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"
 timeout = 60
+markers = [
+    "chromium: end-to-end tests in Chromium",
+    "firefox: end-to-end tests in Firefox",
+    "webkit: end-to-end tests in WebKit",
+]
 
 [tool.coverage.run]
-# Measures src/ only: existing code is exempt from the floor until increment I4 (decision 0015).
-source = ["src"]
+# Existing code under src/concert is exempt from the floor until increment I4 (decision 0015).
+source = ["src/repochecks", "src/concert/capture"]
+# Playwright's synchronous API runs the page in greenlets.
+concurrency = ["thread", "greenlet"]
 branch = false
 parallel = true
 patch = ["subprocess"]
