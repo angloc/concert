@@ -7,6 +7,8 @@ import os
 
 from concert import ROOT
 
+DEFAULT = "baritone"  # the profile whose settings are the engine defaults
+
 
 def load(name: str) -> dict:
     """Engine settings for singer `name`, from singers/<name>/profile.json, with the microphone setting as `mic`."""

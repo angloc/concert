@@ -20,7 +20,7 @@ description: Unresolved questions and known risks in the voice model, the singer
   | Group | Fields | Exists today? |
   |---|---|---|
   | Identity | name, voice type, notes | name and description |
-  | Tract | K or length range, larynx-lowering capacity in cm, a vowel table refitted for that tract; later the pharynx-to-mouth proportion | K, `LH` and `fit.py` exist; no range |
+  | Tract | K or length range, larynx-lowering capacity in cm, a vowel table refitted for that tract; later the pharynx-to-mouth proportion | K, `LH` and a fitted shape table per singer exist; no range |
   | Registers | per register: pitch range, width of the transition zone, Rd range and mapping, spectral tilt, noise, default vibrato | no; a single Rd mapping |
   | Range | comfortable range, extended range with a cost, absolute limit | no |
   | Tuning skill | which vowels can have F1 tuned to pitch, maximum jaw opening, vowel-modification tolerance per vowel | partly: `ftune` and `MAXJ` in `src/concert/voice/tuning.py` |
@@ -54,7 +54,7 @@ description: Unresolved questions and known risks in the voice model, the singer
 
 ## Delivery
 
-- **Testing the band and mix on excerpts.** The band (about 210 s) and the mix (about 100 s) render only the whole song, from module-level state: the song's length and `score.json` are read at import, and every stage writes to `ROOT/build`. Tests on short excerpts within the 60-second limit (increment I4) need a build directory that a test can choose (an environment variable or a `--build` option on every stage) and an excerpt window for band and mix (`--until` only, or `--from` and `--to`, which must carry the room's tail and the loudness plan across the cut). `concert-fit` writes `shapes.json` into the package and needs an output option. Undecided.
+- **Testing the band and mix on excerpts.** The band (about 210 s) and the mix (about 100 s) render only the whole song, from module-level state: the song's length and `score.json` are read at import, and every stage writes to `ROOT/build`. Tests on short excerpts within the 60-second limit (increment I4) need a build directory that a test can choose (an environment variable or a `--build` option on every stage) and an excerpt window for band and mix (`--until` only, or `--from` and `--to`, which must carry the room's tail and the loudness plan across the cut). Undecided.
 - **Checking the picture automatically.** The end-to-end tests check that the player keeps drawing, not what it draws. Comparing screenshots was too flaky: headless WebKit sometimes captures the WebGL canvas as black. A visual check of the film and of the video export is deferred while video is not a focus.
 - **Video as a deliverable.** Whether the MP4 export (increment I1) should be a release deliverable, or stay a developer tool.
 - **Safari and mobile coverage.** CI runs Playwright's WebKit build, which is not Safari. Real Safari on macOS and iOS, and other mobile browsers, are tested by hand. Autoplay unlocking, element fullscreen on iPhone and the size of the page (about 12 MB) are the known risks there.

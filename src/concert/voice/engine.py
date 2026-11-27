@@ -84,9 +84,14 @@ def lerp(tab, x):
 
 
 def render_line(
-    perf: dict, li: int, cfg: dict | None = None, debug: dict | None = None
+    perf: dict,
+    li: int,
+    cfg: dict | None = None,
+    debug: dict | None = None,
+    *,
+    shapes: dict,
 ) -> tuple[int, array]:
-    """Render line `li` of performance `perf` with settings `cfg`: (first sample index, samples at 44.1 kHz)."""
+    """Render line `li` of performance `perf` with settings `cfg` and shape table `shapes`: (first sample index, samples at 44.1 kHz)."""
     cfg = dict(CFG, **(cfg or {}))
     cr = perf["cr"]
     segs = [dict(g) for g in perf["segs"] if g["line"] == li]
@@ -101,7 +106,7 @@ def render_line(
         t_fade = max(t_fade, segs[-1]["t0"])
     T0 = (br[0]["t0"] if br else t_on) - 0.10
     T1 = t_off + 0.42
-    sc = GE.Score(segs, perf)
+    sc = GE.Score(segs, perf, shapes)
     tk = sc.T
     # glottal closing at the end of the line: breathy release
     # ------------------------------------------------ frame clock (tract length varies)
@@ -193,7 +198,7 @@ def render_line(
         Jt = S["J"]
         nuc_ = [g for g in segs if g["role"] == "nuc"]
         for g in nuc_:
-            if TU.MAP.get(g["ph"], g["ph"]) not in TU.table():
+            if TU.MAP.get(g["ph"], g["ph"]) not in TU.table(shapes):
                 continue
             ra = 0.05
             for i in range(nf + 1):
@@ -206,7 +211,7 @@ def render_line(
                     else 1.0 - (g["t0"] - t_ if t_ < g["t0"] else t_ - g["t1"]) / ra
                 )
                 u_ = u_ * u_ * (3 - 2 * u_)
-                Jt[i] += u_ * TU.dj(g["ph"], f0[i], cfg["K"], cfg["ftune"])
+                Jt[i] += u_ * TU.dj(shapes, g["ph"], f0[i], cfg["K"], cfg["ftune"])
     # ------------------------------------------------ areas and coefficients per frame
     piri = 0.85
     KF = []

@@ -1,58 +1,18 @@
-"""fit.py - fit articulator settings so that the tube resonances match target formants of a 16.3 cm tract.
-Writes shapes.json beside this module.   concert-fit [vowel ...]"""
+"""fit.py - fit articulator settings so that the tube resonances match a singer's target formants (16.3 cm tract).
+Reads singers/<name>/targets.json and writes build/<name>/shapes.json.   concert-fit --singer <name> [sound ...]"""
 
+import argparse
 import json
 import math
 import os
 import random
-import sys
+import zlib
 from multiprocessing import Pool
 from pathlib import Path
 
+from concert.voice import shapes as SH
 from concert.voice import tract as T
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-
-
-# name: (targets F1..F3[,F4], prior posture)
-def P(J, X, Y, LA, LP, TR=0.0, TT=0.0, BP=13.6, LH=0.0, EP=0.0):
-    """An articulator posture with the given settings."""
-    return {
-        "J": J,
-        "X": X,
-        "Y": Y,
-        "TR": TR,
-        "TT": TT,
-        "BP": BP,
-        "LA": LA,
-        "LP": LP,
-        "LH": LH,
-        "EP": EP,
-    }
-
-
-TG = {
-    "IY": ((330, 2370, 3040, 3650), P(0.12, 0.95, 0.20, 1.15, -0.30, 0.35)),
-    "IH": ((430, 2050, 2740, 3600), P(0.25, 0.55, 0.15, 1.15, -0.15, 0.15)),
-    "EY": ((480, 2100, 2740, 3600), P(0.28, 0.60, 0.10, 1.2, -0.15, 0.15)),
-    "EH": ((610, 1880, 2680, 3600), P(0.45, 0.40, -0.10, 1.4, -0.05)),
-    "AE": ((755, 1750, 2580, 3600), P(0.70, 0.35, -0.30, 1.7, -0.15)),
-    "A": ((800, 1310, 2600, 3600), P(0.75, -0.30, -0.30, 1.7, 0.0)),
-    "AA": ((790, 1180, 2600, 3600), P(0.75, -0.60, -0.20, 1.6, 0.0)),
-    "AO": ((605, 930, 2560, 3500), P(0.60, -0.60, 0.10, 1.15, 0.30)),
-    "OR": ((510, 900, 2500, 3450), P(0.40, -0.50, 0.30, 0.85, 0.45)),
-    "AH": ((690, 1280, 2580, 3550), P(0.50, -0.30, 0.0, 1.35, 0.0)),
-    "AX": ((520, 1480, 2600, 3550), P(0.30, 0.0, 0.05, 1.1, 0.0)),
-    "UH": ((460, 1100, 2460, 3500), P(0.28, -0.10, 0.40, 0.85, 0.25)),
-    "UW": ((370, 1060, 2420, 3450), P(0.15, 0.25, 0.65, 0.62, 0.60)),
-    "O": ((525, 940, 2520, 3450), P(0.40, -0.40, 0.40, 0.80, 0.50)),
-    "ER": ((500, 1440, 1790, 3350), P(0.25, 0.25, 0.0, 0.85, 0.40, 0.0, 0.85, 12.4)),
-    "R": ((400, 1200, 1620, 3300), P(0.18, 0.20, 0.10, 0.70, 0.50, 0.0, 0.95, 12.5)),
-    "L": ((380, 1150, 2650, 3500), P(0.25, -0.20, 0.20, 1.15, 0.0, 0.0)),
-    "LD": ((460, 920, 2620, 3600), P(0.35, -0.50, 0.30, 1.1, 0.05, 0.0)),
-    "W": ((340, 800, 2420, 3400), P(0.12, -0.15, 0.80, 0.45, 0.75)),
-    "Y": ((300, 2450, 3150, 3650), P(0.08, 1.0, 0.20, 1.05, -0.25, 0.35)),
-}
 SC = {
     "J": 0.25,
     "X": 0.35,
@@ -79,9 +39,8 @@ LIM = {
 }
 
 
-def cost(v, keys, name):
-    """Fit cost of parameter vector `v` for target `name`: formant error plus penalties for leaving the limits."""
-    tg, pr = TG[name]
+def cost(v, keys, tg, pr):
+    """Fit cost of parameter vector `v` for targets `tg` from prior `pr`: formant error plus penalties for leaving the limits."""
     a = dict(pr)
     pen = 0.0
     for k, x in zip(keys, v):
@@ -145,10 +104,10 @@ def neldermead(fn, x0, step, it=420):
     return S[i], V[i]
 
 
-def job(name):
-    """Fit one vowel or consonant target `name`: (name, posture, cost, formants)."""
-    _tg, pr = TG[name]
-    rnd = random.Random(hash(name) & 0xFFFF)
+def job(a):
+    """Fit one vowel or consonant `name` to targets `tg` from prior `pr`, for `a` = (name, tg, pr): (name, posture, cost, formants)."""
+    name, tg, pr = a
+    rnd = random.Random(zlib.crc32(name.encode()) & 0xFFFF)
     keys = ["J", "X", "Y", "TR", "LA", "LP"]
     if name in ("ER", "R"):
         keys += ["TT", "BP"]
@@ -158,7 +117,7 @@ def job(name):
     for tr in range(5):
         x0 = [pr[k] + (rnd.gauss(0, 0.5) * SC[k] if tr else 0) for k in keys]
         x, v = neldermead(
-            lambda q: cost(q, keys, name), x0, [SC[k] * 0.6 for k in keys]
+            lambda q: cost(q, keys, tg, pr), x0, [SC[k] * 0.6 for k in keys]
         )
         if best is None or v < best[1]:
             best = (x, v)
@@ -170,24 +129,30 @@ def job(name):
     return name, a, best[1], [(round(f), round(b), round(h, 1)) for f, b, h in F]
 
 
-def main() -> None:
-    """Command line: concert-fit [name ...]; refits the named shapes (all by default) into shapes.json."""
-    names = sys.argv[1:] or list(TG)
-    path = os.path.join(HERE, "shapes.json")
+def main(argv: list[str] | None = None) -> None:
+    """Command line: concert-fit --singer <name> [--out file] [sound ...]; refits the named sounds (all by default)."""
+    ap = argparse.ArgumentParser(prog="concert-fit")
+    ap.add_argument("--singer", required=True)
+    ap.add_argument("--out")
+    ap.add_argument("sounds", nargs="*")
+    a = ap.parse_args(argv)
+    TG = SH.targets(a.singer)
+    names = a.sounds or list(TG)
+    path = a.out or SH.path(a.singer)
     out = (
-        json.loads(Path(path).read_text())
-        if os.path.exists(path) and sys.argv[1:]
-        else {}
+        json.loads(Path(path).read_text()) if os.path.exists(path) and a.sounds else {}
     )
     with Pool(2) as p:
-        for name, a, v, F in p.imap_unordered(job, names):
+        jobs = [(n, TG[n]["formants"], TG[n]["prior"]) for n in names]
+        for name, art, v, F in p.imap_unordered(job, jobs):
             out[name] = {
-                "art": {k: round(x, 4) for k, x in a.items()},
+                "art": {k: round(x, 4) for k, x in art.items()},
                 "F": F,
-                "target": TG[name][0],
+                "target": TG[name]["formants"],
                 "cost": round(v, 4),
             }
             print(
-                f"{name!s:<3} cost {v:.3f}  tgt {TG[name][0]}  got {[f[:2] for f in F]}\n      { ({k: round(x, 2) for k, x in a.items()}) }"
+                f"{name!s:<3} cost {v:.3f}  tgt {TG[name]['formants']}  got {[f[:2] for f in F]}\n      { ({k: round(x, 2) for k, x in art.items()}) }"
             )
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     Path(path).write_text(json.dumps(out, indent=1, sort_keys=True))

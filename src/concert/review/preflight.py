@@ -82,9 +82,7 @@ def main(argv: list[str] | None = None) -> None:
     VOICE_GAIN_DB = 3.0  # mix.py raises the dry voice to -18 LUFS (measured +3.03 dB on this render)
 
     # predicted formants per vowel (tract coordinates), via the same solver the tuning uses
-    SH = json.loads(
-        Path(os.path.join(os.path.dirname(TU.__file__), "shapes.json")).read_text()
-    )
+    SH = json.loads(Path(BUILD, PS.SINGER, "shapes.json").read_text())
     FM = {}
     for v in set(TU.MAP.values()):
         if v not in SH:

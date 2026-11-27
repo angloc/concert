@@ -92,7 +92,7 @@ Hides the score and how a human performs it. `score` holds tempo, melody, syllab
 
 ### Voice
 
-Hides the physics of the singing voice. See [voice model](voice-model.md). Entry point `concert-sing` renders lines or the whole song to a WAV file, with `--persona` for the per-line Danny Boy personas and `--singer` for a plain profile. Interface: `build/perf.json` in, `build/voice.wav` out. `concert-fit` refits the vowel and consonant shapes (`shapes.json`). Code: [src/concert/voice/](../../src/concert/voice/).
+Hides the physics of the singing voice. See [voice model](voice-model.md). Entry point `concert-sing` renders lines or the whole song to a WAV file, with `--persona` for the per-line Danny Boy personas and `--singer` for a plain profile. Interface: `build/perf.json` and `build/<singer>/shapes.json` in, `build/voice.wav` out; a render without `--persona` or `--singer` uses the `baritone` shapes. `concert-fit --singer <name>` fits the singer's vowel and approximant shapes from `singers/<name>/targets.json` into `build/<name>/shapes.json`, before the voice is rendered ([decision 0023](../decisions/0023-shapes-fitted-per-singer.md)). Code: [src/concert/voice/](../../src/concert/voice/).
 
 ### Band
 

@@ -17,7 +17,7 @@ The profile supplies two things to the design for planning a performance within 
 
 ## What is built
 
-[`singers/<name>/profile.json`](../../singers/) holds a name, a description, the voice settings and the microphone colouring. [src/concert/diction/singer.py](../../src/concert/diction/singer.py) loads it. Two profiles exist:
+[`singers/<name>/profile.json`](../../singers/) holds a name, a description, the voice settings and the microphone colouring. [src/concert/diction/singer.py](../../src/concert/diction/singer.py) loads it. `singers/<name>/targets.json` holds the singer's target formants and a starting posture for each vowel and approximant; `concert-fit --singer <name>` fits the singer's shape table from them into `build/<name>/shapes.json` ([decision 0023](../decisions/0023-shapes-fitted-per-singer.md)). Two profiles exist:
 
 - `baritone`: the original bide singer, a 16.3 cm male tract (K 1.0) with the source calibrated for male pitch;
 - `female`: the Danny Boy re-casting, a uniformly scaled male tract (K 0.84), a lighter source and formant tuning (`ftune` 1.2). It is not female anatomy.
@@ -26,7 +26,7 @@ Transposition is not a singer property; it stays with the song key (`key.json`).
 
 ## What the model fixes today
 
-- **Tract.** A 44-section area-function tube with a nasal port, side cavities, wall loss and lip radiation, 16.3 cm long in its neutral state. The vowel shapes were fitted to typical male formant targets. Other voices are uniform scalings of this tract (K).
+- **Tract.** A 44-section area-function tube with a nasal port, side cavities, wall loss and lip radiation, 16.3 cm long in its neutral state. Each singer's shapes are fitted to that singer's targets, but both singers hold the same typical male targets, so a voice differs from the 16.3 cm tract only by uniform scaling (K).
 - **Source.** A glottal flow waveform with one shape parameter, Rd, from breathy to pressed. Rd comes from tension, breath, loudness and pitch through hand-tuned formulas, one of which assumes a male pitch near 170 Hz.
 - **No fold mechanics.** Pitch is prescribed by the score. There are no registers or breaks between them, no breath capacity, and nothing that knows a note is out of range. Only the tract acoustics and the heuristics limit the output.
 
@@ -35,7 +35,7 @@ Transposition is not a singer property; it stays with the song key (`key.json`).
 | Setting | Controls |
 |---|---|
 | `K` | tract length: formants scale by 1/K |
-| `src/concert/voice/shapes.json`, refitted by `src/concert/voice/fit.py` | vowel postures for any set of formant targets |
+| `singers/<name>/targets.json`, fitted by `concert-fit` | vowel and approximant postures for any set of formant targets |
 | `LH`, `EP` articulators | larynx lowering and epilarynx width |
 | `rd`, `nv`, `nu`, `nm`, `jit`, `shim`, `flut`, `jhi` | source shape, noise and irregularity |
 | `xpose`, `xvib`, `xam`, `aflut` | transposition, vibrato and amplitude modulation (song or persona, not singer) |
